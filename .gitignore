@@ -1,0 +1,11 @@
+# macOS Finder metadata
+.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Local logs
+*.log

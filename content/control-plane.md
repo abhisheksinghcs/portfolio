@@ -106,35 +106,40 @@ The edge tier performs everything that can be decided without model context: TLS
 
 ```mermaid
 flowchart LR
-    C[Client surfaces<br/>apps · agents · CI]
-    subgraph EDGE["Edge Tier (ASGI @ PoP)"]
-        E1[TLS terminate]
-        E2[OIDC verify<br/>JWKS cache]
-        E3[ONNX classifier<br/>int8, in-proc]
-        E4[Band router]
-        E5[(async audit<br/>hash-only)]
+    C["Client surfaces<br/>apps, agents, CI"]
+
+    subgraph EDGE["Edge Tier"]
+        direction TB
+        E1["TLS terminate"]
+        E2["OIDC verify<br/>JWKS cache"]
+        E3["ONNX classifier<br/>int8, in-proc"]
+        E4["Band router"]
+        E5["async audit<br/>hash-only"]
         E1 --> E2 --> E3 --> E4
         E4 -.-> E5
     end
+
     subgraph ORIG["Origin Control Plane"]
-        O1[OPA sidecar<br/>UDS]
-        O2[Input redaction]
-        O3[STS mint<br/>HSM · TTL 60s · cnf=cid]
-        O4[Output stream transform<br/>DLP + secret detector]
+        direction TB
+        O1["OPA sidecar<br/>UDS"]
+        O2["Input redaction"]
+        O3["STS mint<br/>HSM, TTL 60s"]
+        O4["Output stream transform<br/>DLP and secret detector"]
         O1 --> O2 --> O3 --> O4
     end
-    A[(Audit Sink<br/>WORM · HMAC-chained)]
-    M[Model Provider]
-    T[Tool Broker<br/>MCP + APIs]
-    R[Retrieval / RAG<br/>ns per tenant]
 
-    C -- OIDC Bearer + purpose --> EDGE
-    EDGE -- mTLS + signed edge hdrs<br/>Bearer stripped --> ORIG
-    EDGE -.-> A
-    ORIG -.-> A
-    ORIG -- ephemeral cred --> M
-    ORIG --> T
-    ORIG --> R
+    A["Audit Sink<br/>WORM, HMAC-chained"]
+    M["Model Provider"]
+    T["Tool Broker<br/>MCP and APIs"]
+    R["Retrieval and RAG<br/>namespace per tenant"]
+
+    C -->|"OIDC Bearer"| E1
+    E4 -->|"signed edge headers"| O1
+    E5 -.-> A
+    O4 -.-> A
+    O3 -->|"ephemeral cred"| M
+    O4 --> T
+    O4 --> R
 ```
 
 ### 2.2 Request lifecycle
@@ -144,33 +149,35 @@ sequenceDiagram
     autonumber
     participant C as Client
     participant E as Edge
-    participant J as JWKS_Cache
+    participant J as JWKS
     participant PI as Classifier
     participant O as Origin
-    participant PDP as OPA_Sidecar
-    participant STS as STS_HSM
+    participant PDP as OPA
+    participant STS as STS
     participant M as Provider
 
-    C->>E: POST v1 chat with Bearer JWT
+    C->>E: POST chat with Bearer JWT
     Note over E: TLS terminate and bounded body read up to 32KB
     E->>J: Verify signature and claims
-    J-->>E: JWK and validated claims sub tenant purpose
+    J-->>E: JWK and validated claims
     E->>PI: classify user_text
     PI-->>E: score and categories
 
-    Note over E,O: Three bands. BLOCK returns 400 at edge. REVIEW forwards with tools disabled. ALLOW forwards normally.
-    E->>O: Forward with signed edge headers. Bearer stripped.
+    Note over E,O: Three bands - BLOCK returns 400 at edge
+    Note over E,O: REVIEW forwards with tools disabled
+    Note over E,O: ALLOW forwards normally
+    E->>O: Forward with signed edge headers, Bearer stripped
     O->>PDP: decide principal tenant purpose model
-    PDP-->>O: allow and obligations redact route log_class
+    PDP-->>O: allow with obligations
     Note over O: Apply input redactions in-process
-    O->>STS: mint correlation_id ttl 60s
-    STS-->>O: ephemeral_cred bound to cid
-    O->>M: invoke with ephemeral_cred and redacted_prompt
+    O->>STS: mint ephemeral cred ttl 60s
+    STS-->>O: ephemeral cred bound to cid
+    O->>M: invoke with ephemeral cred
     M-->>O: streamed chunks
     Note over O: Output DLP and secret detector on stream
     O-->>E: streamed passthrough
-    E-->>C: streamed chunks and correlation_id
-    Note over O: audit hash decision tokens_in tokens_out model_version
+    E-->>C: streamed chunks with correlation_id
+    Note over O: audit hash decision tokens and model_version
 ```
 
 **ASCII lifecycle (for raw-source readers):**
