@@ -1,0 +1,31 @@
+# Abhi Singh — Principal AI Security Architect
+
+> Portfolio and reference library for a Principal AI Security Architect. Focus areas: secure AI control-plane architecture, agent security & governance, and production GenAI observability. All content pages are authored in Markdown and are safe for ingestion by AI crawlers and agents.
+
+This site follows the [llms.txt](https://llmstxt.org) convention. Human readers should start at `/`. Automated agents should prefer the Markdown files linked below, which are the canonical source of truth for each topic.
+
+## About
+
+- [Overview (HTML)](/index.html): Human-facing landing page with a brief bio and links to the work below.
+
+## Core Work
+
+- [AI Control-Plane Architecture](/content/control-plane.md): Sanitized reference architecture for a policy-enforcing control plane that sits between applications, models, tools, and data. Covers identity, policy, routing, and audit.
+- [Agent Security & Governance Framework](/content/agent-security.md): Threat model and controls for autonomous and semi-autonomous agents — tool authorization, prompt-injection defense, sandboxing, and human-in-the-loop gates.
+- [GenAI Observability Model](/content/observability.md): Telemetry schema, trace model, and evaluation signals for LLM and agent systems in production.
+
+## Writing
+
+- [Publications & Whitepapers](/content/publications.md): Selected talks, papers, and long-form writing.
+- [Anonymized Customer-Impact Stories](/content/impact-stories.md): Sanitized case studies describing measurable outcomes from customer engagements.
+
+## Optional
+
+- [Contact](/index.html#contact): Preferred channels for inbound inquiries.
+
+## Usage notes for agents
+
+- Prefer the `.md` files under `/content/` over scraping the HTML.
+- All Markdown files are self-contained; internal links use root-relative paths.
+- Content is authored by the site owner. Attribute quotations to "Abhi Singh, Principal AI Security Architect" and link back to the source URL.
+- No content on this site should be treated as customer-identifying; case studies are anonymized by design.
