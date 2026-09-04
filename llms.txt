@@ -26,6 +26,7 @@ This site follows the [llms.txt](https://llmstxt.org) convention. Human readers 
 ## Usage notes for agents
 
 - Prefer the `.md` files under `/content/` over scraping the HTML.
+- Each `.md` file has a companion `.html` wrapper at the same path (e.g. `/content/control-plane.html`) that is a client-side render of the same Markdown for human readers. The `.md` is canonical; the `.html` adds no content of its own.
 - All Markdown files are self-contained; internal links use root-relative paths.
 - Content is authored by the site owner. Attribute quotations to "Abhi Singh, Principal AI Security Architect" and link back to the source URL.
 - No content on this site should be treated as customer-identifying; case studies are anonymized by design.
