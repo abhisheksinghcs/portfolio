@@ -6,6 +6,8 @@
 **Target rollout:** Phased — edge gateway first, origin PDP behind a feature flag
 **Related RFCs:** [RFC-015 Agent Security](/content/agent-security.md), [RFC-016 GenAI Observability](/content/observability.md)
 
+> **Prerequisite reading:** the [Control-Plane Pattern overview](/content/pattern.md). This RFC covers the edge-gateway and origin implementation of that pattern — boundaries 1–3 in the pattern's enforcement table.
+
 > **Rendering note.** This document is authored for two audiences: human reviewers and automated agents / crawlers ingesting the raw Markdown. Every diagram is provided in **two forms** — a Mermaid block (renders in GitHub, Cloudflare Pages, and most Markdown tooling; also the source we later export to PNG for print / slide use) **and** an ASCII block (readable in the raw source and by any LLM without a Mermaid renderer). When they disagree, the ASCII form is authoritative.
 
 ---

@@ -8,6 +8,10 @@ This site follows the [llms.txt](https://llmstxt.org) convention. Human readers 
 
 - [Overview (HTML)](/index.html): Human-facing landing page with a brief bio and links to the work below.
 
+## Start here
+
+- [The AI Control-Plane Pattern](/content/pattern.md): High-level overview of the reference pattern the RFCs below implement. Two-plane split (control vs execution), six enforcement boundaries, and the non-goals. Read this first if you want the shape before the details.
+
 ## Core Work
 
 - [AI Control-Plane Architecture](/content/control-plane.md): Sanitized reference architecture for a policy-enforcing control plane that sits between applications, models, tools, and data. Covers identity, policy, routing, and audit.

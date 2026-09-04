@@ -64,6 +64,31 @@ python3 -m http.server 8000</pre>
     });
   };
 
+  // Rewrite same-origin `.md` links to `.html` so the human view lands on
+  // rendered pages. The raw `.md` files still contain `.md` links, which is
+  // what AI agents want when they follow /llms.txt.
+  //
+  // Note: zero-md resolves relative URLs during rendering and writes them
+  // back as absolute URLs (e.g. `/content/foo.md` becomes
+  // `http://localhost:8000/content/foo.md`). We therefore check by origin,
+  // not by whether the href starts with `http://` — otherwise same-origin
+  // absolute URLs get skipped.
+  const rewriteMdLinks = () => {
+    const links = host.querySelectorAll('a[href$=".md"]');
+    links.forEach((a) => {
+      const href = a.getAttribute("href");
+      if (!href) return;
+      try {
+        const url = new URL(href, location.href);
+        if (url.origin !== location.origin) return; // external link
+        url.pathname = url.pathname.replace(/\.md$/, ".html");
+        a.setAttribute("href", url.href);
+      } catch {
+        /* malformed href — leave it alone */
+      }
+    });
+  };
+
   if (location.protocol === "file:") {
     showError("file:// origin");
   } else {
@@ -72,12 +97,39 @@ python3 -m http.server 8000</pre>
 
     host.addEventListener("zero-md-rendered", () => {
       rendered = true;
-      if (mermaidDone) return;
-      mermaidDone = true;
       try {
-        renderMermaidBlocks();
+        // Mermaid must run exactly once. Re-processing a rendered SVG makes
+        // mermaid.run read the SVG string as source and emit UnknownDiagramError.
+        if (!mermaidDone) {
+          mermaidDone = true;
+          renderMermaidBlocks();
+        }
+        // Link rewrite is idempotent (regex only matches .md endings), so it's
+        // safe to run on every re-render. Zero-md occasionally re-injects
+        // content after its first event; this catches that case.
+        rewriteMdLinks();
       } catch (e) {
-        console.error("Mermaid block replacement failed:", e);
+        console.error("Post-render pass failed:", e);
+      }
+    });
+
+    // Defense in depth: if the href attribute is never rewritten for any
+    // reason (async re-injection, timing, cache), intercept the click and
+    // redirect at navigation time. This guarantees the human view lands on
+    // .html even when the visible href still says .md.
+    host.addEventListener("click", (ev) => {
+      const a = ev.target.closest && ev.target.closest('a[href$=".md"]');
+      if (!a) return;
+      const href = a.getAttribute("href");
+      if (!href) return;
+      try {
+        const url = new URL(href, location.href);
+        if (url.origin !== location.origin) return; // external link
+        url.pathname = url.pathname.replace(/\.md$/, ".html");
+        ev.preventDefault();
+        location.href = url.href;
+      } catch {
+        /* malformed href — let the browser handle it */
       }
     });
 
