@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chapter 8: Deep Dive — RAG Security — Enterprise AI Security Workshop</title>
+<meta name="description" content="A stage-by-stage security walkthrough of a RAG pipeline — Ingestion, Storage, Indexing, Retrieval, Prompt Assembly, Model Inference, and Output — with Azure-native controls for each." />
+<link rel="canonical" href="https://abhisingh.org/workshops/enterprise-ai-security/chapters/08-rag-security.html" />
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="../css/workshop.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Deep Dive: RAG Security",
+  "description": "A stage-by-stage security walkthrough of a RAG pipeline with Azure-native controls for each stage.",
+  "learningResourceType": "Chapter",
+  "position": 8,
+  "isPartOf": { "@type": "Course", "name": "Enterprise AI Security Workshop", "url": "https://abhisingh.org/workshops/enterprise-ai-security/" },
+  "author": { "@type": "Person", "name": "Abhi Singh", "url": "https://abhisingh.org/" },
+  "about": ["Retrieval-Augmented Generation", "RAG security", "Azure AI Search", "Prompt injection", "Data security"],
+  "audience": { "@type": "Audience", "audienceType": "Security Architect, AI Engineer, Data Engineer, Platform Engineer" },
+  "timeRequired": "PT10M",
+  "url": "https://abhisingh.org/workshops/enterprise-ai-security/chapters/08-rag-security.html"
+}
+</script>
+</head>
+<body class="bg-white text-slate-900">
+
+<header class="border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-5 py-3 text-sm text-slate-500 flex flex-wrap items-center gap-1">
+    <a href="/" class="hover:text-blue-700">Home</a><span>/</span>
+    <a href="/workshops/" class="hover:text-blue-700">Workshops</a><span>/</span>
+    <a href="/workshops/enterprise-ai-security/" class="hover:text-blue-700">Enterprise AI Security Workshop</a><span>/</span>
+    <span class="text-slate-700">Chapter 8 · Deep Dive</span>
+  </div>
+  <div class="max-w-6xl mx-auto px-5 pb-6">
+    <p class="text-xs font-semibold tracking-wide text-blue-700 uppercase">Chapter 8 of 8 · Deep Dive · ~10 min read</p>
+    <h1 class="text-3xl font-bold mt-1">Deep Dive: RAG Security</h1>
+    <p class="text-slate-600 mt-2 max-w-3xl">Retrieval-Augmented Generation has seven distinct stages, and each one is a separate security boundary with its own failure modes.</p>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-5 py-8 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-10">
+
+  <nav aria-label="Table of contents" class="wsx-toc lg:sticky lg:top-6 lg:self-start order-2 lg:order-1">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">On this page</p>
+    <a href="#summary">Summary</a>
+    <a href="#core-concepts">Core concepts</a>
+    <a href="#architecture">Architecture discussion</a>
+    <a href="#security-considerations">Key security considerations</a>
+    <a href="#practices">Recommended practices</a>
+    <a href="#technologies">Technologies referenced</a>
+    <a href="#takeaways">Key takeaways</a>
+    <div class="mt-6 wsx-callout">
+      <span class="wsx-callout-label">Deep dive</span>
+      RAG is referenced throughout this workshop's FinOps architecture (Chapter 2) as a single box. This chapter opens that box: seven pipeline stages, each with its own risk, failure mode, and Azure-native control.
+    </div>
+  </nav>
+
+  <article class="wsx-prose order-1 lg:order-2 max-w-3xl">
+
+    <section id="summary">
+      <h2>Summary</h2>
+      <p>Retrieval-Augmented Generation (RAG) grounds a model's responses in your own data — but "RAG" is not one thing to secure, it's seven stages: <strong>Ingestion, Storage, Indexing, Retrieval, Prompt Assembly, Model Inference, and Output</strong>. Each stage has a distinct risk profile, and a control that protects one stage (say, access control on the vector index) does nothing for another (say, a poisoned document making it into the index in the first place). This chapter walks the pipeline stage by stage.</p>
+    </section>
+
+    <section id="core-concepts">
+      <h2>Core concepts</h2>
+      <figure class="wsx-diagram" role="img" aria-label="RAG pipeline stages">
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box">1. Ingestion</div>
+          <div class="wsx-diagram-arrow">→</div>
+          <div class="wsx-diagram-box">2. Storage</div>
+          <div class="wsx-diagram-arrow">→</div>
+          <div class="wsx-diagram-box">3. Indexing</div>
+          <div class="wsx-diagram-arrow">→</div>
+          <div class="wsx-diagram-box">4. Retrieval</div>
+        </div>
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box">5. Prompt Assembly</div>
+          <div class="wsx-diagram-arrow">→</div>
+          <div class="wsx-diagram-box">6. Model Inference</div>
+          <div class="wsx-diagram-arrow">→</div>
+          <div class="wsx-diagram-box wsx-box-accent">7. Output</div>
+        </div>
+        <figcaption>A document enters at Ingestion and, after Storage and Indexing, is retrieved at query time, assembled into a prompt, sent to the model, and returned as Output. An attacker can target any one of these seven boundaries independently.</figcaption>
+      </figure>
+      <p>The reason to think in stages rather than "the RAG system" as one unit: a document can be perfectly clean at Ingestion and still leak data at Retrieval if access control isn't enforced there too. Securing one stage never implies the others are secure.</p>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture discussion — stage by stage</h2>
+
+      <h3>1. Ingestion</h3>
+      <table>
+        <thead><tr><th>Risk</th><th>What can go wrong</th><th>Azure-native controls</th></tr></thead>
+        <tbody>
+          <tr><td>Poisoned documents</td><td>Malicious instructions embedded in PDFs/docs</td><td>Defender for Storage (malware scanning); Azure AI Content Safety (pre-index scan); manual review workflow for high-risk sources</td></tr>
+          <tr><td>Malware</td><td>Embedded exploits in files</td><td>Defender for Storage malware detection</td></tr>
+          <tr><td>Credential leakage</td><td>Secrets embedded in docs</td><td>Content Safety + regex scanning; Key Vault secret scanning policies</td></tr>
+          <tr><td>Unauthorized ingestion</td><td>Anyone can upload content</td><td>Entra ID auth; managed identity for ingestion pipelines; RBAC on storage</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2. Storage</h3>
+      <table>
+        <thead><tr><th>Risk</th><th>What can go wrong</th><th>Azure-native controls</th></tr></thead>
+        <tbody>
+          <tr><td>Data exfiltration</td><td>Public blobs or shared keys</td><td>Disable public access; Private Endpoints; RBAC-only access</td></tr>
+          <tr><td>Unauthorized access</td><td>Broad contributor roles</td><td>Least-privilege RBAC; separate containers for raw vs. processed data</td></tr>
+          <tr><td>Compliance violations</td><td>Data retention / deletion gaps</td><td>Immutable blob policies; lifecycle management rules</td></tr>
+          <tr><td>Key compromise</td><td>Storage keys leaked</td><td>Azure Policy: disable key-based auth</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3. Indexing (Azure AI Search)</h3>
+      <table>
+        <thead><tr><th>Risk</th><th>What can go wrong</th><th>Azure-native controls</th></tr></thead>
+        <tbody>
+          <tr><td>Over-indexing</td><td>Sensitive fields indexed unintentionally</td><td>Field-level controls (searchable, retrievable); index schema reviews</td></tr>
+          <tr><td>Cross-tenant leakage</td><td>One user sees another tenant's data</td><td>Tenant ID stored as metadata; mandatory filter expressions</td></tr>
+          <tr><td>Index abuse</td><td>Direct access to search endpoint</td><td>Private Endpoint only; Entra ID auth; disable API keys</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4. Retrieval</h3>
+      <table>
+        <thead><tr><th>Risk</th><th>What can go wrong</th><th>Azure-native controls</th></tr></thead>
+        <tbody>
+          <tr><td>Over-retrieval</td><td>Too many documents returned</td><td>Top-K limits enforced in code / APIM</td></tr>
+          <tr><td>Unauthorized data access</td><td>User retrieves data beyond clearance</td><td>Entra ID claims → filter expressions; row-level security (RLS)</td></tr>
+          <tr><td>Prompt injection via retrieved text</td><td>Instructions hidden in documents</td><td>System-prompt isolation; Content Safety scan on retrieved chunks</td></tr>
+        </tbody>
+      </table>
+
+      <h3>5. Prompt Assembly</h3>
+      <table>
+        <thead><tr><th>Risk</th><th>What can go wrong</th><th>Azure-native controls</th></tr></thead>
+        <tbody>
+          <tr><td>Prompt override</td><td>User says "ignore system prompt"</td><td>APIM prompt firewall; fixed system-prompt templates</td></tr>
+          <tr><td>Context stuffing</td><td>Excessive data injected</td><td>Prompt size limits in APIM</td></tr>
+          <tr><td>Tool abuse</td><td>Model calls unintended tools</td><td>Tool allow-listing; explicit tool schemas</td></tr>
+          <tr><td>Data leakage</td><td>Sensitive data added to prompt</td><td>Prompt-inspection policies; structured prompt formats</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6. Model Inference</h3>
+      <table>
+        <thead><tr><th>Risk</th><th>What can go wrong</th><th>Azure-native controls</th></tr></thead>
+        <tbody>
+          <tr><td>Prompt injection</td><td>Model follows malicious instructions</td><td>Defender for AI runtime detection</td></tr>
+          <tr><td>Data exfiltration</td><td>Model outputs sensitive data</td><td>Defender for AI alerts; token anomaly detection</td></tr>
+          <tr><td>Abuse</td><td>Excessive or automated usage</td><td>Rate limiting (APIM); quotas in Azure OpenAI</td></tr>
+          <tr><td>Shadow AI</td><td>Unmanaged model usage</td><td>Defender for Cloud AI discovery</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7. Output</h3>
+      <table>
+        <thead><tr><th>Risk</th><th>What can go wrong</th><th>Azure-native controls</th></tr></thead>
+        <tbody>
+          <tr><td>PII leakage</td><td>SSNs, emails, PHI in response</td><td>Azure AI Content Safety (PII detection); optional Presidio on Azure</td></tr>
+          <tr><td>Unsafe content</td><td>Toxic or policy-violating output</td><td>Content Safety filters</td></tr>
+          <tr><td>Hallucinated actions</td><td>Model invents actions/commands</td><td>Output schema validation; human-in-the-loop approvals</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="security-considerations">
+      <h2>Key security considerations</h2>
+      <ul>
+        <li><strong>The most dangerous risks span multiple stages.</strong> Prompt injection via retrieved text appears at both Retrieval (stage 4) and Model Inference (stage 6) — an attacker who successfully poisons a document at Ingestion is exercising a multi-stage attack chain, not a single exploit.</li>
+        <li><strong>Cross-tenant leakage at the Indexing stage is a governance failure, not just a technical one</strong> — mandatory filter expressions only work if every query path actually enforces them; a debugging tool or admin console that bypasses the filter reintroduces the exact risk it was built to prevent.</li>
+        <li><strong>Output validation is the last line of defense, not the first.</strong> By the time a hallucinated action or PII leak reaches Output, five prior stages have already had a chance to catch it — treat a repeated Output-stage failure as a signal to audit earlier stages, not just tighten the output filter.</li>
+        <li><strong>Rate limiting and quotas (stage 6) are a security control, not just a cost control</strong> — unmetered inference is also unmetered exfiltration bandwidth.</li>
+      </ul>
+    </section>
+
+    <section id="practices">
+      <h2>Recommended practices</h2>
+      <ol>
+        <li>Map your own RAG pipeline to these seven stages explicitly, and confirm you have at least one control per stage before calling the pipeline "secured" — a single strong control at one stage does not compensate for a missing control at another.</li>
+        <li>Enforce tenant and clearance filtering (Indexing and Retrieval stages) as mandatory query parameters the search service itself rejects requests without — not as an application-layer convention that can be bypassed.</li>
+        <li>Scan retrieved content for injected instructions at Retrieval, before it's assembled into a prompt — waiting until Model Inference to catch it means the model has already seen the malicious content.</li>
+        <li>Apply the same "log hash, not content" telemetry discipline from Chapter 6 to RAG-specific logs — prompt assembly and retrieval logs are just as capable of leaking sensitive data as application logs.</li>
+        <li>Require human-in-the-loop approval for any output that triggers a downstream action (not just a response) — hallucinated actions are a distinct risk from hallucinated facts.</li>
+      </ol>
+    </section>
+
+    <section id="technologies">
+      <h2>Technologies referenced</h2>
+      <ul>
+        <li><strong>Microsoft Defender for Storage</strong> — malware scanning at Ingestion.</li>
+        <li><strong>Azure AI Content Safety</strong> — pre-index scanning, retrieved-chunk scanning, and PII/unsafe-content detection at Output.</li>
+        <li><strong>Azure Key Vault</strong> — secret scanning policies at Ingestion.</li>
+        <li><strong>Azure AI Search</strong> — field-level access controls and mandatory filter expressions at Indexing.</li>
+        <li><strong>Azure API Management (APIM)</strong> — Top-K limits, prompt firewall, prompt-size limits, and rate limiting across Retrieval, Prompt Assembly, and Model Inference.</li>
+        <li><strong>Microsoft Defender for AI</strong> — runtime prompt-injection and exfiltration detection at Model Inference.</li>
+        <li><strong>Microsoft Entra ID</strong> — claims-based filtering enforced at Retrieval.</li>
+      </ul>
+    </section>
+
+    <div id="takeaways" class="wsx-takeaways">
+      <h2>Key takeaways</h2>
+      <ul>
+        <li>RAG is seven distinct security boundaries — Ingestion, Storage, Indexing, Retrieval, Prompt Assembly, Model Inference, Output — not one system to secure once.</li>
+        <li>Multi-stage attacks (a poisoned document at Ingestion that triggers prompt injection at Retrieval and Model Inference) are the highest-risk pattern; single-stage controls don't stop them.</li>
+        <li>Output-stage filtering is the last line of defense; recurring output failures are a signal to audit ingestion, indexing, and retrieval controls, not just tighten the output filter.</li>
+      </ul>
+    </div>
+
+    <footer class="mt-10 pt-6 border-t border-slate-200">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Machine-readable metadata</p>
+      <pre class="wsx-metadata"><code>Workshop:
+  Title: Enterprise AI Security Workshop
+  Chapter: 8 of 8 — Deep Dive: RAG Security
+  Audience:
+    - CISO
+    - Security Architect
+    - Enterprise Architect
+  Topics:
+    - AI Security
+    - Agent Governance
+    - Identity
+    - Data Protection
+    - Threat Modeling
+  Technologies:
+    - Microsoft Entra
+    - Microsoft Purview
+    - Microsoft Defender
+    - Azure AI Foundry
+    - Agent 365</code></pre>
+
+      <div class="flex justify-between items-center mt-8 text-sm">
+        <a href="./07-mcp-security.html" class="text-blue-700 hover:underline font-semibold">← Chapter 7: Deep Dive — MCP Security</a>
+        <a href="/workshops/enterprise-ai-security/glossary.html" class="text-blue-700 hover:underline">Glossary</a>
+        <a href="/workshops/enterprise-ai-security/" class="text-blue-700 hover:underline font-semibold">Back to workshop overview →</a>
+      </div>
+    </footer>
+
+  </article>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chapter 1: The Shift to Agentic AI — Enterprise AI Security Workshop</title>
+<meta name="description" content="How the AI trust boundary evolved from static chatbots to autonomous agents, and the 8-domain Agentic AI Security Framework used to reason about controls across the agent spectrum." />
+<link rel="canonical" href="https://abhisingh.org/workshops/enterprise-ai-security/chapters/01-shift-to-agentic-ai.html" />
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="../css/workshop.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "The Shift to Agentic AI",
+  "description": "How the AI trust boundary evolved from static chatbots to autonomous agents, and the 8-domain Agentic AI Security Framework used to reason about controls across the agent spectrum.",
+  "learningResourceType": "Chapter",
+  "position": 1,
+  "isPartOf": {
+    "@type": "Course",
+    "name": "Enterprise AI Security Workshop",
+    "url": "https://abhisingh.org/workshops/enterprise-ai-security/"
+  },
+  "author": { "@type": "Person", "name": "Abhi Singh", "url": "https://abhisingh.org/" },
+  "about": ["AI security", "Agentic AI", "Zero trust", "Agent governance", "Trust boundary"],
+  "audience": { "@type": "Audience", "audienceType": "CISO, Security Architect, Enterprise Architect, AI Engineer" },
+  "timeRequired": "PT8M",
+  "url": "https://abhisingh.org/workshops/enterprise-ai-security/chapters/01-shift-to-agentic-ai.html"
+}
+</script>
+</head>
+<body class="bg-white text-slate-900">
+
+<header class="border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-5 py-3 text-sm text-slate-500 flex flex-wrap items-center gap-1">
+    <a href="/" class="hover:text-blue-700">Home</a>
+    <span>/</span>
+    <a href="/workshops/" class="hover:text-blue-700">Workshops</a>
+    <span>/</span>
+    <a href="/workshops/enterprise-ai-security/" class="hover:text-blue-700">Enterprise AI Security Workshop</a>
+    <span>/</span>
+    <span class="text-slate-700">Chapter 1</span>
+  </div>
+  <div class="max-w-6xl mx-auto px-5 pb-6">
+    <p class="text-xs font-semibold tracking-wide text-blue-700 uppercase">Chapter 1 of 8 · ~8 min read</p>
+    <h1 class="text-3xl font-bold mt-1">The Shift to Agentic AI</h1>
+    <p class="text-slate-600 mt-2 max-w-3xl">Why the security model that worked for chatbots breaks down for agents, and the framework this workshop uses to reason about controls across the full agent spectrum.</p>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-5 py-8 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-10">
+
+  <nav aria-label="Table of contents" class="wsx-toc lg:sticky lg:top-6 lg:self-start order-2 lg:order-1">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">On this page</p>
+    <a href="#summary">Summary</a>
+    <a href="#core-concepts">Core concepts</a>
+    <a href="#architecture">Architecture discussion</a>
+    <a href="#security-considerations">Key security considerations</a>
+    <a href="#practices">Recommended practices</a>
+    <a href="#technologies">Technologies referenced</a>
+    <a href="#takeaways">Key takeaways</a>
+    <div class="mt-6 wsx-callout">
+      <span class="wsx-callout-label">Key insight</span>
+      The trust boundary used to sit between a user and one centralized model. With agents, it moves to <em>every tool call, every retrieval, and every action</em> — and it has to be verified per request, not assumed from network location.
+    </div>
+  </nav>
+
+  <article class="wsx-prose order-1 lg:order-2 max-w-3xl">
+
+    <section id="summary">
+      <h2>Summary</h2>
+      <p>Securing generative AI is a moving target because the thing being secured keeps changing shape. Between 2019 and today, AI systems moved through three distinct stages — <strong>chatbots</strong>, <strong>agents</strong>, and systems connected via the <strong>Model Context Protocol (MCP)</strong> — and each stage redraws where the trust boundary sits. This chapter covers that evolution and introduces the <strong>Agentic AI Security Framework</strong>, an 8-domain model this workshop uses to map security controls across low-code, pro-code, and third-party agents, and to make explicit who owns each control: the platform provider, the customer, or both.</p>
+    </section>
+
+    <section id="core-concepts">
+      <h2>Core concepts</h2>
+
+      <h3>Stage 1 — Chatbots (2019–2022)</h3>
+      <p>In this stage, security was largely about protecting the core model and the infrastructure around it. The AI was a passive entity living inside a well-defined boundary. The trust boundary was simple and static: it existed between the user and a single, centralized model. All trust was placed in that one controlled environment. The user's input was treated as untrusted; the model's output was treated as a direct, unfiltered response from a single source. There was one thing to secure and one place to secure it.</p>
+
+      <h3>Stage 2 — Agents (2022–2023)</h3>
+      <p>An agent is not one thing — it's a spectrum of autonomy:</p>
+      <ul>
+        <li><strong>Interactive agents</strong> perform a single, specific, repetitive task on demand ("summarize this email") and act only when the user asks.</li>
+        <li><strong>Autonomous agents</strong> are goal-oriented: they create plans to achieve an outcome and coordinate actions on the user's behalf, on the user's schedule.</li>
+        <li><strong>Collaborative agents</strong> are learning-driven and emulate human decision-making. They provision their own access and resources, and pursue goals on their own behalf and schedule.</li>
+      </ul>
+      <p>Every step along that spectrum removes a human checkpoint. An interactive agent has a human in the loop for every action. A collaborative agent might not. That's the shift that breaks the chatbot-era security model: the boundary can no longer sit between "user" and "model," because the agent itself is now making decisions and taking actions no single prompt fully describes.</p>
+
+      <h3>Stage 3 — Model Context Protocol</h3>
+      <p>The most recent stage standardizes how agents discover and use tools, data sources, and other models across organizational boundaries. This is covered as its own deep dive later in the workshop — see <a href="./07-mcp-security.html">Chapter 7: MCP Security</a> — because MCP introduces its own threat surface (credential handling, tool poisoning, session hijacking) distinct from the agent-identity and data problems covered in Chapters 3–4.</p>
+
+      <h3>The trust boundary, restated</h3>
+      <p>Across all three stages, the same question is being answered differently: <em>where do we stop trusting input and start verifying it?</em> Chatbots answered it once, at the edge of a single model. Agents answer it continuously — at every tool call, every retrieval, every action — because the agent's own reasoning is now part of the attack surface, not just its inputs and outputs.</p>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture discussion — the Agentic AI Security Framework</h2>
+      <p>Rather than treat "AI security" as one undifferentiated problem, this workshop uses an 8-domain framework to map specific controls to specific layers, and — critically — to make explicit who is responsible for each one. Responsibility shifts depending on how the agent is built:</p>
+      <ul>
+        <li><strong>Low-code</strong> — Copilot, Copilot Studio, Agent Builder</li>
+        <li><strong>Pro-code</strong> — Azure AI Foundry, AKS/EKS, App Services</li>
+        <li><strong>Third-party agents</strong> — pro-code providers like Gemini or Bedrock, and SaaS agents embedded in tools like Jira or Workday</li>
+      </ul>
+
+      <table>
+        <thead>
+          <tr><th>#</th><th>Domain</th><th>Low-code</th><th>Pro-code</th><th>Third-party</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>01</td><td>AI Asset Inventory</td><td>Shared</td><td>Customer</td><td>Shared</td></tr>
+          <tr><td>02</td><td>Identity &amp; Access</td><td>Customer</td><td>Customer</td><td>Customer</td></tr>
+          <tr><td>03</td><td>AI Data Security</td><td>Customer</td><td>Customer</td><td>Shared</td></tr>
+          <tr><td>04</td><td>AI Secure SDLC</td><td>N/A</td><td>Customer</td><td>Provider</td></tr>
+          <tr><td>05</td><td>AI Red Team</td><td>N/A</td><td>Customer</td><td>Provider</td></tr>
+          <tr><td>06</td><td>AI Runtime Security</td><td>Shared</td><td>Customer</td><td>Provider</td></tr>
+          <tr><td>07</td><td>AI Incident Response</td><td>Shared</td><td>Customer</td><td>Shared</td></tr>
+          <tr><td>08</td><td>Third-Party &amp; Shadow AI</td><td>N/A</td><td>Customer</td><td>Customer</td></tr>
+        </tbody>
+      </table>
+      <p class="text-sm text-slate-500">Responsibility model: <strong>Provider-led</strong> — the vendor owns the control. <strong>Shared</strong> — joint responsibility. <strong>Customer-led</strong> — the customer owns the control. Mapping condensed from the workshop framework; exact tooling per domain is covered in later chapters.</p>
+
+      <p>The concrete tooling behind each "Customer" and "Shared" cell in this table is what the rest of this workshop covers: <a href="./03-managing-ai-identities.html">Entra Agent ID</a> for identity and access, <a href="./04-data-security-shadow-ai.html">Purview and Defender for Cloud Apps</a> for data security and shadow AI, <a href="./05-securing-the-ai-platform.html">Azure AI Content Safety and the AI Red Teaming Agent</a> for secure SDLC and red teaming, and <a href="./06-operating-securely-at-scale.html">Defender for Cloud and Agent 365</a> for runtime security and incident response.</p>
+    </section>
+
+    <section id="security-considerations">
+      <h2>Key security considerations</h2>
+      <ul>
+        <li><strong>The boundary moved from static to per-request.</strong> A control that only checks identity once, at login, does not cover an agent that keeps acting for hours or days across many tool calls.</li>
+        <li><strong>Autonomy is a spectrum, not a switch.</strong> Two agents built on the same platform can carry very different risk depending on where they sit between "interactive" and "collaborative" — assess each agent individually, not by product category.</li>
+        <li><strong>Responsibility is not uniform across deployment models.</strong> A low-code Copilot Studio agent and a pro-code Foundry agent carry the same identity and data risks, but very different SDLC and red-teaming responsibility. Assuming "the platform handles it" is the single most common gap this framework is designed to catch.</li>
+        <li><strong>Third-party and shadow AI is its own domain, not an afterthought.</strong> Agents your organization did not build (SaaS agents in Jira, Workday, or a vendor's product) still touch your identity and data surface, even though you don't control their SDLC.</li>
+      </ul>
+    </section>
+
+    <section id="practices">
+      <h2>Recommended practices</h2>
+      <ol>
+        <li>Before evaluating any agent's security posture, place it on the interactive → autonomous → collaborative spectrum first. The answer changes what "sufficient" controls look like.</li>
+        <li>Use the 8-domain table as a literal checklist per agent deployment: for each of the 8 domains, name the specific control and who owns it. An empty cell is a gap, not a "handled by the platform" assumption.</li>
+        <li>Re-run the classification whenever an agent's deployment model changes — for example, when a Copilot Studio prototype graduates to a pro-code Foundry deployment, its SDLC and red-team responsibility shifts from largely provider-owned to customer-owned.</li>
+        <li>Treat third-party and SaaS-embedded agents as agents, not as application features. They still need an entry in your AI asset inventory (domain 01).</li>
+      </ol>
+    </section>
+
+    <section id="technologies">
+      <h2>Technologies referenced</h2>
+      <ul>
+        <li><strong>Azure AI Foundry</strong> — pro-code agent hosting and orchestration platform, covered in depth in Chapter 5.</li>
+        <li><strong>Copilot Studio / Agent Builder</strong> — low-code agent authoring surfaces.</li>
+        <li><strong>Microsoft Entra Agent ID</strong> — identity and access domain, covered in Chapter 3.</li>
+        <li><strong>Microsoft Purview</strong> — data security domain, covered in Chapter 4.</li>
+        <li><strong>Microsoft Defender</strong> (Defender for Cloud, Defender for Cloud Apps, Defender XDR) — runtime security and shadow AI domains, covered in Chapters 4 and 6.</li>
+      </ul>
+    </section>
+
+    <div id="takeaways" class="wsx-takeaways">
+      <h2>Key takeaways</h2>
+      <ul>
+        <li>The AI trust boundary evolved from a single static perimeter (chatbots) to continuous, per-request verification (agents) — see <a href="./03-managing-ai-identities.html">Chapter 3</a> for how identity providers implement that shift concretely.</li>
+        <li>Agent autonomy is a spectrum (interactive → autonomous → collaborative); classify each agent individually before assessing its risk.</li>
+        <li>Use the 8-domain Agentic AI Security Framework, and its provider/shared/customer responsibility model, as the organizing structure for the rest of this workshop.</li>
+      </ul>
+    </div>
+
+    <footer class="mt-10 pt-6 border-t border-slate-200">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Machine-readable metadata</p>
+      <pre class="wsx-metadata"><code>Workshop:
+  Title: Enterprise AI Security Workshop
+  Chapter: 1 of 8 — The Shift to Agentic AI
+  Audience:
+    - CISO
+    - Security Architect
+    - Enterprise Architect
+  Topics:
+    - AI Security
+    - Agent Governance
+    - Identity
+    - Data Protection
+    - Threat Modeling
+  Technologies:
+    - Microsoft Entra
+    - Microsoft Purview
+    - Microsoft Defender
+    - Azure AI Foundry
+    - Agent 365</code></pre>
+
+      <div class="flex justify-between items-center mt-8 text-sm">
+        <span class="text-slate-400">← Start of workshop</span>
+        <a href="/workshops/enterprise-ai-security/glossary.html" class="text-blue-700 hover:underline">Glossary</a>
+        <a href="./02-finops-reference-architecture.html" class="text-blue-700 hover:underline font-semibold">Chapter 2: The FinOps Reference Architecture →</a>
+      </div>
+    </footer>
+
+  </article>
+</div>
+
+</body>
+</html>

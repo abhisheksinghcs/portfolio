@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chapter 4: Data Security and Shadow AI — Enterprise AI Security Workshop</title>
+<meta name="description" content="Every prompt is a data transfer. Shadow AI discovery, preventing oversharing and leakage, and how Microsoft Purview extends data security and compliance controls to AI agents." />
+<link rel="canonical" href="https://abhisingh.org/workshops/enterprise-ai-security/chapters/04-data-security-shadow-ai.html" />
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="../css/workshop.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Data Security and Shadow AI",
+  "description": "Every prompt is a data transfer. Shadow AI discovery, preventing oversharing and leakage, and how Microsoft Purview extends data security and compliance controls to AI agents.",
+  "learningResourceType": "Chapter",
+  "position": 4,
+  "isPartOf": { "@type": "Course", "name": "Enterprise AI Security Workshop", "url": "https://abhisingh.org/workshops/enterprise-ai-security/" },
+  "author": { "@type": "Person", "name": "Abhi Singh", "url": "https://abhisingh.org/" },
+  "about": ["Shadow AI", "Data loss prevention", "Data security posture management", "Microsoft Purview", "Insider risk"],
+  "audience": { "@type": "Audience", "audienceType": "CISO, Security Architect, Data Protection Officer" },
+  "timeRequired": "PT9M",
+  "url": "https://abhisingh.org/workshops/enterprise-ai-security/chapters/04-data-security-shadow-ai.html"
+}
+</script>
+</head>
+<body class="bg-white text-slate-900">
+
+<header class="border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-5 py-3 text-sm text-slate-500 flex flex-wrap items-center gap-1">
+    <a href="/" class="hover:text-blue-700">Home</a><span>/</span>
+    <a href="/workshops/" class="hover:text-blue-700">Workshops</a><span>/</span>
+    <a href="/workshops/enterprise-ai-security/" class="hover:text-blue-700">Enterprise AI Security Workshop</a><span>/</span>
+    <span class="text-slate-700">Chapter 4</span>
+  </div>
+  <div class="max-w-6xl mx-auto px-5 pb-6">
+    <p class="text-xs font-semibold tracking-wide text-blue-700 uppercase">Chapter 4 of 8 · ~9 min read</p>
+    <h1 class="text-3xl font-bold mt-1">Data Security and Shadow AI</h1>
+    <p class="text-slate-600 mt-2 max-w-3xl">Every prompt is a data transfer. What happens when engineers looking for routine help send proprietary data across a trust boundary you don't control.</p>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-5 py-8 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-10">
+
+  <nav aria-label="Table of contents" class="wsx-toc lg:sticky lg:top-6 lg:self-start order-2 lg:order-1">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">On this page</p>
+    <a href="#summary">Summary</a>
+    <a href="#core-concepts">Core concepts</a>
+    <a href="#architecture">Architecture discussion</a>
+    <a href="#security-considerations">Key security considerations</a>
+    <a href="#practices">Recommended practices</a>
+    <a href="#technologies">Technologies referenced</a>
+    <a href="#takeaways">Key takeaways</a>
+    <div class="mt-6 wsx-callout wsx-callout-warn">
+      <span class="wsx-callout-label">Case study</span>
+      Samsung engineers pasted proprietary source code and internal meeting notes into ChatGPT via personal accounts to get routine debugging help. No malware, no exploit — just copy-paste. The data left Samsung's control the moment it was submitted. (Reported: TechRadar, 2023)
+    </div>
+  </nav>
+
+  <article class="wsx-prose order-1 lg:order-2 max-w-3xl">
+
+    <section id="summary">
+      <h2>Summary</h2>
+      <p>The Samsung ChatGPT incident is the clearest illustration of why "every prompt is a data transfer": three routine requests for help — debugging code, optimizing a test script, summarizing a meeting — moved proprietary source code, confidential process data, and internal notes outside the company's control, with no malware and no exploit involved. This chapter covers <strong>shadow AI</strong> (unapproved AI tool and agent usage), how to discover it, and how <strong>Microsoft Purview</strong> extends data security and compliance controls to both shadow AI usage and governed agents.</p>
+    </section>
+
+    <section id="core-concepts">
+      <h2>Core concepts</h2>
+
+      <h3>Anatomy of the Samsung incident</h3>
+      <p>The incident unfolded in a sequence worth internalizing, because each step maps to a specific control gap:</p>
+      <ol>
+        <li><strong>Employees sought productivity help</strong> — engineers wanted faster ways to debug code, optimize test scripts, and summarize meeting recordings, and turned to ChatGPT via browser using non-enterprise accounts.</li>
+        <li><strong>Sensitive data was pasted directly into prompts</strong> — proprietary source code, internal meeting notes, and confidential process data, submitted with no malware and no exploit. Just copy-paste.</li>
+        <li><strong>Data left Samsung's control</strong> — the AI service retained inputs for service improvement; once submitted, the data was stored on external servers and Samsung lost the ability to recall or delete it.</li>
+        <li><strong>Intellectual property became externally accessible</strong> — no longer confined to internal systems, and at risk of resurfacing in responses to other users. Classified internally as an IP leakage incident.</li>
+        <li><strong>Detection was manual and reactive</strong> — Samsung identified the pattern only after multiple similar incidents were separately reported internally (code optimization, yield analysis, meeting summarization) — not through automated monitoring.</li>
+      </ol>
+      <p>Every step in that sequence is a gap this chapter's controls close: account governance (non-enterprise accounts should never have reached this workflow), real-time content inspection (rather than after-the-fact pattern recognition), and automated detection (rather than relying on employees to self-report).</p>
+
+      <h3>What shadow AI actually looks like</h3>
+      <p>Shadow AI is unapproved use of AI tools, agents, or coding assistants — Cursor and GitHub Copilot are named specifically in this workshop's threat model — that introduces uncontrolled data exposure and model-driven code changes outside governance. Concretely:</p>
+      <ul>
+        <li>Sensitive code, credentials, or business logic get pasted into unmanaged AI systems, creating leakage and compliance blind spots.</li>
+        <li>Agentic coding tools can auto-generate or modify application logic without review, increasing the risk of insecure code, hidden dependencies, or supply-chain issues.</li>
+        <li>Security teams lose visibility entirely — no logging, no oversight, no ability to trace how AI-generated actions or code paths entered production.</li>
+      </ul>
+      <p>Discovering it starts with four questions: What type of sensitive data is flowing in? Are outputs and interactions protected and well-governed? Who's using GenAI in your organization and how is access secured and governed? What types of GenAI apps are actually being used?</p>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture discussion</h2>
+      <p>Two Microsoft services address this from different angles: <strong>Defender for Cloud Apps</strong> handles discovery and access control at the app layer; <strong>Purview</strong> handles content-aware protection and compliance.</p>
+
+      <figure class="my-6">
+        <img src="../images/shadow-ai-discovery.png" alt="Shadow AI discovery dashboard showing GenAI applications in use across an organization" loading="lazy" class="w-full" />
+        <figcaption>Shadow AI discovery surfaces which GenAI apps are in use across the organization, using a single app catalog, before any governance can be applied.</figcaption>
+      </figure>
+
+      <p>Defender for Cloud Apps minimizes shadow AI risk by:</p>
+      <ul>
+        <li><strong>Discovering</strong> shadow AI — identifying generative AI and AI-powered SaaS apps in use.</li>
+        <li><strong>Assessing risk</strong> — scoring AI apps on security, compliance, and data protection.</li>
+        <li><strong>Sanctioning or blocking</strong> apps — allowing approved AI tools and blocking risky or unapproved ones.</li>
+        <li><strong>Preventing leakage</strong> — working with Purview DLP to protect sensitive data in AI prompts.</li>
+        <li><strong>Monitoring usage</strong> — alerting on new or risky AI app activity.</li>
+        <li><strong>Enforcing controls</strong> — blocking unsanctioned AI apps on managed devices via Defender for Endpoint.</li>
+        <li><strong>Centralizing response</strong> — sending AI risk signals into Defender XDR for investigation.</li>
+      </ul>
+
+      <figure class="my-6">
+        <img src="../images/purview-dspm-agents.png" alt="Microsoft Purview Data Security Posture Management dashboard for AI agents" loading="lazy" class="w-full" />
+        <figcaption>Purview's Data Security Posture Management (DSPM) for AI gives visibility into agent risk before an incident occurs.</figcaption>
+      </figure>
+
+      <p>Purview organizes agent data protection into three layers:</p>
+      <ul>
+        <li><strong>Observe agent risk</strong> — agent visibility and risk scoring in DSPM for AI, and Insider Risk Management extended to agents.</li>
+        <li><strong>Protect sensitive data</strong> — Purview protections applied directly to agent interactions, with native support for Agent ID so protections travel with the agent's identity.</li>
+        <li><strong>Maintain compliance</strong> — compliance controls extended to agents, not just to human users.</li>
+      </ul>
+
+      <figure class="my-6">
+        <img src="../images/purview-insider-risk.png" alt="Microsoft Purview Insider Risk Management extended to AI agents" loading="lazy" class="w-full" />
+        <figcaption>Insider Risk Management extended to agents: the same anomaly and risky-activity detection applied to human insider risk now applies to agent behavior.</figcaption>
+      </figure>
+
+      <p>Purview minimizes data exposure risk by monitoring data interactions across 357+ AI platforms, intelligently detecting and blocking sensitive content before it enters AI systems, applying customizable policy frameworks for organizational AI usage requirements, blocking sensitive data exposure at the browser, and extending insider risk management to agents specifically.</p>
+
+      <figure class="my-6">
+        <img src="../images/purview-agent-protection.png" alt="Microsoft Purview protections applied to AI agent interactions" loading="lazy" class="w-full" />
+        <figcaption>Purview protections for agent interactions, applied via Agent ID — the same identity established in Chapter 3 carries data-protection policy with it.</figcaption>
+      </figure>
+
+      <figure class="my-6">
+        <img src="../images/purview-compliance-manager.png" alt="Microsoft Purview Compliance Manager showing AI-powered regulatory templates" loading="lazy" class="w-full" />
+        <figcaption>Purview Compliance Manager's AI-powered regulatory templates map agent deployments against frameworks like NIST AI RMF and the EU AI Act.</figcaption>
+      </figure>
+
+      <p>Applied to the FinOps architecture from Chapter 2, this closes the loop opened in Chapter 3: Entra Agent ID establishes <em>who</em> the agent is; Purview and Defender for Cloud Apps govern <em>what data</em> that identity can touch and <em>whether its usage is sanctioned at all</em>.</p>
+    </section>
+
+    <section id="security-considerations">
+      <h2>Key security considerations</h2>
+      <ul>
+        <li><strong>Detection has to be real-time, not retrospective.</strong> Samsung's own detection was manual pattern-matching across separately reported incidents — the exact failure mode DSPM for AI and Defender for Cloud Apps are built to prevent by inspecting content as it moves, not after the fact.</li>
+        <li><strong>Agentic coding tools are a distinct shadow AI risk from chat-based tools.</strong> A coding assistant that auto-generates or modifies application logic without review can introduce vulnerabilities into production without any single human ever reviewing the change.</li>
+        <li><strong>Data protection has to follow agent identity, not just human identity.</strong> Purview's support for Agent ID matters specifically because agent-to-agent and agent-to-system data flows don't have a human in the loop to apply judgment at the point of transfer.</li>
+        <li><strong>Compliance frameworks now explicitly cover AI</strong> — Compliance Manager's AI-powered regulatory templates reflect that regulators are no longer treating AI systems as out of scope for existing data-protection obligations.</li>
+      </ul>
+    </section>
+
+    <section id="practices">
+      <h2>Recommended practices</h2>
+      <ol>
+        <li>Run shadow AI discovery before building any governance program — you cannot govern AI usage you can't see. Start with the four discovery questions in this chapter.</li>
+        <li>Apply DLP-style content inspection to AI prompts, not just to file uploads and email — a pasted code block in a chat prompt is a data transfer with the same risk profile as an email attachment.</li>
+        <li>Extend insider risk management to agents specifically, not only to the humans who deploy them — an agent's behavior can itself be the anomaly.</li>
+        <li>Treat Agent ID as the anchor for data-protection policy: apply Purview protections keyed to agent identity so policy travels with the agent across every system it touches.</li>
+      </ol>
+    </section>
+
+    <section id="technologies">
+      <h2>Technologies referenced</h2>
+      <ul>
+        <li><strong>Microsoft Defender for Cloud Apps</strong> — shadow AI discovery, risk scoring, sanctioning/blocking, and enforcement via Defender for Endpoint.</li>
+        <li><strong>Microsoft Purview</strong> (DSPM for AI, DLP, Insider Risk Management, Compliance Manager) — content-aware data protection and compliance extended to agents.</li>
+        <li><strong>Microsoft Defender XDR</strong> — centralized investigation and response for AI risk signals.</li>
+        <li><strong>Microsoft Entra Agent ID</strong> — the identity anchor Purview protections attach to (from Chapter 3).</li>
+      </ul>
+    </section>
+
+    <div id="takeaways" class="wsx-takeaways">
+      <h2>Key takeaways</h2>
+      <ul>
+        <li>Every prompt is a potential data transfer — the Samsung incident required no exploit, just unmanaged copy-paste into a non-enterprise AI tool.</li>
+        <li>Shadow AI discovery has to come before governance; you can't secure what you can't see.</li>
+        <li>Data protection has to be anchored to agent identity (Agent ID), not just applied at the human layer, because agents create data flows with no human in the loop.</li>
+      </ul>
+    </div>
+
+    <footer class="mt-10 pt-6 border-t border-slate-200">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Machine-readable metadata</p>
+      <pre class="wsx-metadata"><code>Workshop:
+  Title: Enterprise AI Security Workshop
+  Chapter: 4 of 8 — Data Security and Shadow AI
+  Audience:
+    - CISO
+    - Security Architect
+    - Enterprise Architect
+  Topics:
+    - AI Security
+    - Agent Governance
+    - Identity
+    - Data Protection
+    - Threat Modeling
+  Technologies:
+    - Microsoft Entra
+    - Microsoft Purview
+    - Microsoft Defender
+    - Azure AI Foundry
+    - Agent 365</code></pre>
+
+      <div class="flex justify-between items-center mt-8 text-sm">
+        <a href="./03-managing-ai-identities.html" class="text-blue-700 hover:underline font-semibold">← Chapter 3: Managing AI Identities</a>
+        <a href="/workshops/enterprise-ai-security/glossary.html" class="text-blue-700 hover:underline">Glossary</a>
+        <a href="./05-securing-the-ai-platform.html" class="text-blue-700 hover:underline font-semibold">Chapter 5: Securing the AI Platform →</a>
+      </div>
+    </footer>
+
+  </article>
+</div>
+
+</body>
+</html>

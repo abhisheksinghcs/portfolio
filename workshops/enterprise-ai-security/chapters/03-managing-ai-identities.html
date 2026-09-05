@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chapter 3: Managing AI Identities — Enterprise AI Security Workshop</title>
+<meta name="description" content="Giving every agent a traceable, purpose-rich identity: Microsoft Entra Agent ID's Register, Govern, Protect model — agent registry, lifecycle automation, access packages, conditional access, ID Protection, and network controls." />
+<link rel="canonical" href="https://abhisingh.org/workshops/enterprise-ai-security/chapters/03-managing-ai-identities.html" />
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="../css/workshop.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Managing AI Identities",
+  "description": "Giving every agent a traceable, purpose-rich identity: Microsoft Entra Agent ID's Register, Govern, Protect model.",
+  "learningResourceType": "Chapter",
+  "position": 3,
+  "isPartOf": { "@type": "Course", "name": "Enterprise AI Security Workshop", "url": "https://abhisingh.org/workshops/enterprise-ai-security/" },
+  "author": { "@type": "Person", "name": "Abhi Singh", "url": "https://abhisingh.org/" },
+  "about": ["Agent identity", "Zero trust", "Conditional access", "Identity governance", "Entra Agent ID"],
+  "audience": { "@type": "Audience", "audienceType": "CISO, Security Architect, Enterprise Architect, IAM Engineer" },
+  "timeRequired": "PT9M",
+  "url": "https://abhisingh.org/workshops/enterprise-ai-security/chapters/03-managing-ai-identities.html"
+}
+</script>
+</head>
+<body class="bg-white text-slate-900">
+
+<header class="border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-5 py-3 text-sm text-slate-500 flex flex-wrap items-center gap-1">
+    <a href="/" class="hover:text-blue-700">Home</a><span>/</span>
+    <a href="/workshops/" class="hover:text-blue-700">Workshops</a><span>/</span>
+    <a href="/workshops/enterprise-ai-security/" class="hover:text-blue-700">Enterprise AI Security Workshop</a><span>/</span>
+    <span class="text-slate-700">Chapter 3</span>
+  </div>
+  <div class="max-w-6xl mx-auto px-5 pb-6">
+    <p class="text-xs font-semibold tracking-wide text-blue-700 uppercase">Chapter 3 of 8 · ~9 min read</p>
+    <h1 class="text-3xl font-bold mt-1">Managing AI Identities</h1>
+    <p class="text-slate-600 mt-2 max-w-3xl">Give every agent a traceable, purpose-rich identity with full auditing, ownership metadata, and lifecycle governance — making it easier to detect misuse, revoke access, and maintain compliance.</p>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-5 py-8 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-10">
+
+  <nav aria-label="Table of contents" class="wsx-toc lg:sticky lg:top-6 lg:self-start order-2 lg:order-1">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">On this page</p>
+    <a href="#summary">Summary</a>
+    <a href="#core-concepts">Core concepts</a>
+    <a href="#architecture">Architecture discussion</a>
+    <a href="#security-considerations">Key security considerations</a>
+    <a href="#practices">Recommended practices</a>
+    <a href="#technologies">Technologies referenced</a>
+    <a href="#takeaways">Key takeaways</a>
+    <div class="mt-6 wsx-callout wsx-callout-warn">
+      <span class="wsx-callout-label">From the field</span>
+      "The challenge isn't that AI agents make mistakes — it's that we give them the keys to the kingdom when they do." An agent given broad, standing filesystem and cloud credentials deleted a user's files and cloud resources when its instructions were manipulated (r/google_antigravity, 2025).
+    </div>
+  </nav>
+
+  <article class="wsx-prose order-1 lg:order-2 max-w-3xl">
+
+    <section id="summary">
+      <h2>Summary</h2>
+      <p>Every agent needs the same identity discipline enterprises already apply to employees — but most organizations don't have it yet. Agents today are commonly <strong>unknown and unsupervised</strong>, <strong>over-privileged by default</strong>, and <strong>unmanaged and ungoverned</strong>. This chapter covers how <strong>Microsoft Entra Agent ID</strong> addresses that gap through a three-part model — <strong>Register, Govern, Protect</strong> — and applies it back to the <a href="./02-finops-reference-architecture.html">FinOps reference architecture</a> from Chapter 2.</p>
+    </section>
+
+    <section id="core-concepts">
+      <h2>Core concepts</h2>
+      <h3>The identity gap</h3>
+      <p>Before any governance model, agents in most environments share three properties that make them a distinct risk category from either human or traditional service-account identities:</p>
+      <ul>
+        <li><strong>Unknown and unsupervised</strong> — no consistent inventory of what agents exist, who created them, or what they're allowed to do.</li>
+        <li><strong>Over-privileged by default</strong> — agents are frequently granted broad standing access because narrowing scope takes deliberate effort nobody has budgeted for.</li>
+        <li><strong>Unmanaged and ungoverned</strong> — no lifecycle: agents outlive their purpose, their owners change teams, and nobody notices.</li>
+      </ul>
+
+      <h3>Register, Govern, Protect</h3>
+      <p>Entra Agent ID organizes identity controls into three stages, each addressing one property of the identity gap above:</p>
+      <ul>
+        <li><strong>Register</strong> — bring every agent, whether built on a Microsoft platform or a third party, into a single <strong>agent registry</strong>. The registry is a centralized metadata store; agents brought in via open APIs avoid the "every tool has its own list" problem that makes agent sprawl invisible.</li>
+        <li><strong>Govern</strong> — lifecycle management, sponsors and managers, and access governance. This is where orphaned agents get identified and sponsor assignment gets automated as ownership changes.</li>
+        <li><strong>Protect</strong> — conditional access, Identity Protection, and traffic filtering applied to agents the same way they're applied to users today.</li>
+      </ul>
+
+      <h3>Discovery through collections</h3>
+      <p>Agent discovery is governed through <strong>collections-based governance</strong>. Admins can make agents discoverable organization-wide using <strong>Global Collections</strong>, or restrict visibility by department (HR, Finance) using <strong>Custom Collections</strong>. This gives you unified visibility — a single view of every agent instance, including ones not backed by Agent ID — and secure collaboration, since agents can discover and interact with each other in a trusted, bounded way rather than an open free-for-all.</p>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture discussion</h2>
+      <p>Entra Agent ID sits alongside the platforms that host agents, extending the same protections Entra already provides for employee identities:</p>
+
+      <figure class="wsx-diagram" role="img" aria-label="Foundry Agent Service and Entra Agent ID integration diagram">
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box wsx-box-accent"><strong>Microsoft Entra Agent ID</strong>Register · Govern · Protect</div>
+        </div>
+        <div class="wsx-diagram-label">↕ secures ↕</div>
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box"><strong>Foundry Agent Service</strong></div>
+          <div class="wsx-diagram-box"><strong>Foundry Models</strong></div>
+          <div class="wsx-diagram-box"><strong>Foundry Observability</strong></div>
+        </div>
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box"><strong>Azure AI Search</strong></div>
+          <div class="wsx-diagram-box"><strong>Azure AI Services</strong></div>
+          <div class="wsx-diagram-box"><strong>Azure Machine Learning</strong></div>
+          <div class="wsx-diagram-box"><strong>Azure AI Content Safety</strong></div>
+        </div>
+        <figcaption>Foundry Agent Service + Entra Agent ID: scale, operate, secure. Agent sources include Copilot Studio, Azure AI Foundry, Copilot, Teams, and third-party/HR systems; Entra Agent ID supports open standards including A2A, MCP, OIDC, and OAuth 2.0.</figcaption>
+      </figure>
+
+      <figure class="my-6">
+        <img src="../images/agent-registry-visibility.png" alt="Agent registry providing unified visibility into all agents in an environment" loading="lazy" class="w-full" />
+        <figcaption>The agent registry gives visibility into every agent in the environment — whether or not it already has an Agent ID — including agents built on Microsoft platforms and third-party agents, removing blind spots.</figcaption>
+      </figure>
+
+      <h3>Applied to the FinOps architecture</h3>
+      <p>Layered onto the FinOps diagram from Chapter 2, Entra Agent ID addresses four things directly:</p>
+      <ul>
+        <li><strong>Sprawl</strong> — distinguishing approved agents from shadow AI across the FinOps Planner, Cost Analysis, and Cost Optimization agents.</li>
+        <li><strong>Lifecycle</strong> — centralized inventory and governance instead of three independently-tracked agents.</li>
+        <li><strong>Permission creep</strong> — access packages scope exactly what each agent's identity can reach, instead of standing broad access to cost data and cloud resources.</li>
+        <li><strong>Activity anomalies</strong> — behavior baselined against past patterns, so a Cost Optimization agent suddenly querying HR data is a detectable anomaly, not silent.</li>
+      </ul>
+
+      <figure class="my-6">
+        <img src="../images/conditional-access-agents.png" alt="Conditional access policy configuration for AI agents in Microsoft Entra" loading="lazy" class="w-full" />
+        <figcaption>Conditional Access for agents applies policy based on who the agent is and the context it's operating in — enforced broadly, with fine-grained control retained where needed.</figcaption>
+      </figure>
+
+      <figure class="my-6">
+        <img src="../images/id-protection-risky-agent.png" alt="Identity Protection flagging risky agent behavior in Microsoft Entra" loading="lazy" class="w-full" />
+        <figcaption>Identity Protection for agents flags risky signals — sign-in spikes, repeated failed access, access attempts against unfamiliar resources — and can block access automatically while security teams investigate.</figcaption>
+      </figure>
+
+      <figure class="my-6">
+        <img src="../images/secure-web-ai-gateway.png" alt="Microsoft Entra Internet Access secure web and AI gateway dashboard" loading="lazy" class="w-full" />
+        <figcaption>Entra Internet Access extends the Global Secure Access proxy across three dimensions: prompt-injection protection (XPIA/UPIA and jailbreak defense), network-based data security (DLP-style exfiltration prevention), and GenAI app discovery.</figcaption>
+      </figure>
+    </section>
+
+    <section id="security-considerations">
+      <h2>Key security considerations</h2>
+      <ul>
+        <li><strong>Standing access is the recurring root cause.</strong> The Reddit-documented incident that opens this chapter (an agent given broad, unscoped filesystem and cloud CLI access, then manipulated into a destructive action) is a governance failure, not a model failure — the model did exactly what it was instructed to do.</li>
+        <li><strong>Time-bound access packages shrink blast radius.</strong> If an agent is compromised, the compromise window is limited to however long its access package is valid — not indefinitely.</li>
+        <li><strong>Automated lifecycle management is not optional at scale.</strong> Manual sponsor reassignment and orphan detection do not survive contact with hundreds of agents; automation is what keeps accountability aligned with reality as ownership changes.</li>
+        <li><strong>Network-layer controls are a second line of defense</strong>, not a replacement for identity controls — Entra Internet Access catches prompt injection and exfiltration attempts that get past application-layer defenses, but it doesn't replace scoping what an agent's identity can access in the first place.</li>
+      </ul>
+    </section>
+
+    <section id="practices">
+      <h2>Recommended practices</h2>
+      <ol>
+        <li>Register every agent — including third-party and SaaS-embedded ones — in a single agent registry before granting it any production access.</li>
+        <li>Default every agent identity to a time-limited access package. Standing, indefinite access should require an explicit exception with an owner and an expiry date.</li>
+        <li>Apply Conditional Access to agents using the same custom security attributes and risk-based policies already used for human identities — don't build a parallel, weaker policy set "for agents."</li>
+        <li>Enable Identity Protection risk signals for agents and route flagged agents to automatic access blocking, not just an alert queue nobody watches.</li>
+        <li>Layer network-level controls (Secure Web + AI Gateway) as defense-in-depth against prompt injection and data exfiltration, on top of — not instead of — identity-level scoping.</li>
+      </ol>
+    </section>
+
+    <section id="technologies">
+      <h2>Technologies referenced</h2>
+      <ul>
+        <li><strong>Microsoft Entra Agent ID</strong> — agent registry, lifecycle, and access governance.</li>
+        <li><strong>Microsoft Entra Conditional Access</strong> and <strong>Identity Protection</strong> — policy enforcement and risk-based detection, extended to agents.</li>
+        <li><strong>Microsoft Entra Internet Access (Secure Web + AI Gateway)</strong> — network-layer prompt-injection protection and data-exfiltration prevention.</li>
+        <li><strong>Azure AI Foundry</strong> (Agent Service, Models, Observability) — the pro-code platform Agent ID secures in this chapter's architecture diagram.</li>
+      </ul>
+    </section>
+
+    <div id="takeaways" class="wsx-takeaways">
+      <h2>Key takeaways</h2>
+      <ul>
+        <li>Agents today are typically unknown, over-privileged, and ungoverned by default — Register, Govern, Protect is the model to close all three gaps.</li>
+        <li>Time-bound access packages and automated lifecycle management shrink both the standing attack surface and the operational burden of managing agents at scale.</li>
+        <li>Identity controls are the primary defense; network-layer controls (Secure Web + AI Gateway) are the second line, not a substitute.</li>
+      </ul>
+    </div>
+
+    <footer class="mt-10 pt-6 border-t border-slate-200">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Machine-readable metadata</p>
+      <pre class="wsx-metadata"><code>Workshop:
+  Title: Enterprise AI Security Workshop
+  Chapter: 3 of 8 — Managing AI Identities
+  Audience:
+    - CISO
+    - Security Architect
+    - Enterprise Architect
+  Topics:
+    - AI Security
+    - Agent Governance
+    - Identity
+    - Data Protection
+    - Threat Modeling
+  Technologies:
+    - Microsoft Entra
+    - Microsoft Purview
+    - Microsoft Defender
+    - Azure AI Foundry
+    - Agent 365</code></pre>
+
+      <div class="flex justify-between items-center mt-8 text-sm">
+        <a href="./02-finops-reference-architecture.html" class="text-blue-700 hover:underline font-semibold">← Chapter 2: The FinOps Reference Architecture</a>
+        <a href="/workshops/enterprise-ai-security/glossary.html" class="text-blue-700 hover:underline">Glossary</a>
+        <a href="./04-data-security-shadow-ai.html" class="text-blue-700 hover:underline font-semibold">Chapter 4: Data Security and Shadow AI →</a>
+      </div>
+    </footer>
+
+  </article>
+</div>
+
+</body>
+</html>

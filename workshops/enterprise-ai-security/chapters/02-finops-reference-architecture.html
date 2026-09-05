@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chapter 2: The FinOps Reference Architecture — Enterprise AI Security Workshop</title>
+<meta name="description" content="A running multi-agent FinOps case study used throughout the workshop, agent anatomy (model, instructions, tools), and the four systemic challenges agentic deployments introduce." />
+<link rel="canonical" href="https://abhisingh.org/workshops/enterprise-ai-security/chapters/02-finops-reference-architecture.html" />
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="../css/workshop.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "The FinOps Reference Architecture",
+  "description": "A running multi-agent FinOps case study used throughout the workshop, agent anatomy (model, instructions, tools), and the four systemic challenges agentic deployments introduce.",
+  "learningResourceType": "Chapter",
+  "position": 2,
+  "isPartOf": { "@type": "Course", "name": "Enterprise AI Security Workshop", "url": "https://abhisingh.org/workshops/enterprise-ai-security/" },
+  "author": { "@type": "Person", "name": "Abhi Singh", "url": "https://abhisingh.org/" },
+  "about": ["Multi-agent architecture", "Agent design", "Agent sprawl", "AI Security"],
+  "audience": { "@type": "Audience", "audienceType": "CISO, Security Architect, Enterprise Architect, AI Engineer" },
+  "timeRequired": "PT7M",
+  "url": "https://abhisingh.org/workshops/enterprise-ai-security/chapters/02-finops-reference-architecture.html"
+}
+</script>
+</head>
+<body class="bg-white text-slate-900">
+
+<header class="border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-5 py-3 text-sm text-slate-500 flex flex-wrap items-center gap-1">
+    <a href="/" class="hover:text-blue-700">Home</a><span>/</span>
+    <a href="/workshops/" class="hover:text-blue-700">Workshops</a><span>/</span>
+    <a href="/workshops/enterprise-ai-security/" class="hover:text-blue-700">Enterprise AI Security Workshop</a><span>/</span>
+    <span class="text-slate-700">Chapter 2</span>
+  </div>
+  <div class="max-w-6xl mx-auto px-5 pb-6">
+    <p class="text-xs font-semibold tracking-wide text-blue-700 uppercase">Chapter 2 of 8 · ~7 min read</p>
+    <h1 class="text-3xl font-bold mt-1">The FinOps Reference Architecture</h1>
+    <p class="text-slate-600 mt-2 max-w-3xl">A running multi-agent case study, referenced throughout this workshop, used to make abstract risks concrete.</p>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-5 py-8 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-10">
+
+  <nav aria-label="Table of contents" class="wsx-toc lg:sticky lg:top-6 lg:self-start order-2 lg:order-1">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">On this page</p>
+    <a href="#summary">Summary</a>
+    <a href="#core-concepts">Core concepts</a>
+    <a href="#architecture">Architecture discussion</a>
+    <a href="#security-considerations">Key security considerations</a>
+    <a href="#practices">Recommended practices</a>
+    <a href="#technologies">Technologies referenced</a>
+    <a href="#takeaways">Key takeaways</a>
+    <div class="mt-6 wsx-callout">
+      <span class="wsx-callout-label">Stat</span>
+      82% of leaders expect to use agents in the next 12–18 months to meet demand for workforce capacity. (Microsoft Work Trend Index, 2025)
+    </div>
+  </nav>
+
+  <article class="wsx-prose order-1 lg:order-2 max-w-3xl">
+
+    <section id="summary">
+      <h2>Summary</h2>
+      <p>Security discussions about "AI agents" stay abstract unless they're grounded in a real architecture. This workshop uses one running example — a FinOps (cloud financial operations) multi-agent application — as a checkpoint after each subsequent chapter: identity (Chapter 3), data protection (Chapter 4), platform hardening (Chapter 5), and runtime observability (Chapter 6) are each shown applied to the same diagram. This chapter introduces that architecture, breaks down what an agent is actually made of, and frames the four systemic challenges that recur across every domain in the Agentic AI Security Framework from <a href="./01-shift-to-agentic-ai.html">Chapter 1</a>.</p>
+    </section>
+
+    <section id="core-concepts">
+      <h2>Core concepts</h2>
+      <h3>What an agent is made of</h3>
+      <p>Every agent in the reference architecture is built from three core components:</p>
+      <ul>
+        <li><strong>Model (LLM)</strong> — powers reasoning and language understanding.</li>
+        <li><strong>Instructions</strong> — define the agent's goals, behavior, and constraints. Instructions take one of three forms: <em>declarative</em> (a prompt-based agent combining model configuration, instructions, tools, and natural-language prompts), <em>workflow</em> (an agentic workflow expressed as YAML or code that orchestrates multiple agents or triggers actions on criteria), or <em>hosted</em> (a containerized agent created and deployed in code, hosted by a platform like Azure AI Foundry).</li>
+        <li><strong>Tools</strong> — let the agent retrieve knowledge or take action against real systems.</li>
+      </ul>
+      <p>This matters for security because each component has a different attack surface. The model can be jailbroken. The instructions can be overridden by injected content. The tools can be invoked with the wrong arguments or invoked when they shouldn't be invoked at all. Treating "the agent" as one undifferentiated thing to secure misses that these are three distinct control points.</p>
+
+      <h3>The four systemic challenges</h3>
+      <p>Across every domain in the security framework, four challenges show up repeatedly:</p>
+      <ul>
+        <li><strong>Agent sprawl &amp; resource access</strong> — 82% of leaders expect to use agents in the next 12–18 months to meet demand for workforce capacity (Microsoft Work Trend Index Survey, 2025).</li>
+        <li><strong>Data oversharing &amp; leaks</strong> — 80% of leaders cited leakage of sensitive data as their main concern (First Annual Generative AI Study: Business Rewards vs. Security Risks, ISMG, Q3 2023, N=400).</li>
+        <li><strong>Shadow AI, new threats &amp; vulnerabilities</strong> — 88% of organizations are concerned about indirect prompt injection attacks (Gartner, "How to Secure Custom-Built AI Agents," 17 March 2025).</li>
+        <li><strong>Regulatory compliance</strong> — 55% of leaders lack understanding of how AI is and will be regulated and are seeking guidance (ISMG, Q3 2023).</li>
+      </ul>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture discussion</h2>
+      <p>The reference architecture is a three-agent FinOps application:</p>
+      <ul>
+        <li><strong>FinOps supervisor / planner agent</strong> — the central coordinator. It manages user queries and orchestrates the two subordinate agents below.</li>
+        <li><strong>Cost analysis agent</strong> — uses historical invoice and accounts-receivable data to gather and analyze cost data for a specified time range.</li>
+        <li><strong>Cost optimization agent</strong> — uses a data warehouse (Data Explorer / Synapse Analytics) to produce actionable cost-saving recommendations.</li>
+      </ul>
+
+      <figure class="wsx-diagram" role="img" aria-label="FinOps multi-agent reference architecture diagram">
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box"><strong>Developer</strong>Cursor, GitHub Copilot</div>
+          <div class="wsx-diagram-box"><strong>Business user</strong>App API</div>
+        </div>
+        <div class="wsx-diagram-label">↓ deploys / calls ↓</div>
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box wsx-box-accent"><strong>FinOps Planner Agent</strong>Central coordinator</div>
+        </div>
+        <div class="wsx-diagram-label">↓ orchestrates ↓</div>
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box"><strong>Cost Analysis Agent</strong>Invoice + AR data → RAG</div>
+          <div class="wsx-diagram-box"><strong>Cost Optimization Agent</strong>Cost Optimizer Function → Forecast API</div>
+        </div>
+        <div class="wsx-diagram-label">↓ reads / writes ↓</div>
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box"><strong>Cost &amp; Use Data</strong></div>
+          <div class="wsx-diagram-box"><strong>DB Credentials</strong></div>
+          <div class="wsx-diagram-box"><strong>Application Secrets</strong></div>
+        </div>
+        <figcaption>Simplified from the workshop deck. App hosting, application image repo, and third-party AI dependencies omitted for clarity — the full architecture is referenced again in Chapters 3, 4, 5, and 6 with each chapter's controls layered on top.</figcaption>
+      </figure>
+
+      <h3>The exercise: spot the weaknesses</h3>
+      <p>Before introducing any controls, the workshop pauses on this diagram and asks participants to identify security weaknesses unassisted. The two weaknesses the workshop specifically calls out are <strong>memory and context poisoning</strong> (an agent's short-term or long-term memory being corrupted by adversarial input) and <strong>prompt injection</strong>, both direct (UPIA) and indirect via retrieved content (XPIA). Both are revisited with concrete controls in <a href="./05-securing-the-ai-platform.html">Chapter 5</a>.</p>
+    </section>
+
+    <section id="security-considerations">
+      <h2>Key security considerations</h2>
+      <ul>
+        <li><strong>An agent's blast radius is the union of its tools' blast radius.</strong> The cost optimization agent's access to a data warehouse is a data-exfiltration path even if the agent itself was never intended to expose that data directly.</li>
+        <li><strong>Orchestration is a trust relationship.</strong> The supervisor agent trusts output from two subordinate agents. If either subordinate is compromised or manipulated, the supervisor propagates that without necessarily re-validating it.</li>
+        <li><strong>Credentials and secrets sitting next to agent code are a standing risk</strong>, independent of whether the agent is currently under attack — this is why identity (Chapter 3) is addressed before data protection (Chapter 4) in this workshop's sequence.</li>
+        <li><strong>The four systemic challenges are not independent.</strong> Agent sprawl makes oversharing harder to audit; shadow AI makes sprawl invisible; regulatory uncertainty means organizations often can't tell which controls are mandatory versus best-practice.</li>
+      </ul>
+    </section>
+
+    <section id="practices">
+      <h2>Recommended practices</h2>
+      <ol>
+        <li>Diagram every multi-agent system down to the level in this chapter — supervisor, subordinates, credentials, and data stores — before evaluating its security posture. Vague architecture diagrams hide vague responsibility.</li>
+        <li>For every tool an agent can call, ask: what is the worst single action this tool allows, and does the agent's instruction set actually need it?</li>
+        <li>Treat orchestration hand-offs (supervisor → subordinate → supervisor) as trust boundaries that deserve their own validation, not silent pass-through.</li>
+        <li>Use the four systemic-challenge stats as a lightweight way to prioritize: if your organization can't yet answer "how many agents do we have" (sprawl), that's the domain to fix first, before investing heavily in the others.</li>
+      </ol>
+    </section>
+
+    <section id="technologies">
+      <h2>Technologies referenced</h2>
+      <ul>
+        <li><strong>Azure AI Foundry</strong> — hosts the FinOps agents as pro-code, containerized deployments.</li>
+        <li><strong>Azure Data Explorer / Synapse Analytics</strong> — backing data warehouse for the cost optimization agent.</li>
+        <li><strong>Retrieval-Augmented Generation (RAG)</strong> — used by the cost analysis agent to ground responses in invoice and cost data.</li>
+      </ul>
+    </section>
+
+    <div id="takeaways" class="wsx-takeaways">
+      <h2>Key takeaways</h2>
+      <ul>
+        <li>An agent is three things — model, instructions, tools — each with a distinct attack surface. Secure them as three control points, not one.</li>
+        <li>This FinOps architecture recurs through the rest of the workshop; each subsequent chapter layers its controls onto the same diagram.</li>
+        <li>Four systemic challenges (sprawl, oversharing, shadow AI, regulatory uncertainty) show up across every security domain — use them to prioritize where to start.</li>
+      </ul>
+    </div>
+
+    <footer class="mt-10 pt-6 border-t border-slate-200">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Machine-readable metadata</p>
+      <pre class="wsx-metadata"><code>Workshop:
+  Title: Enterprise AI Security Workshop
+  Chapter: 2 of 8 — The FinOps Reference Architecture
+  Audience:
+    - CISO
+    - Security Architect
+    - Enterprise Architect
+  Topics:
+    - AI Security
+    - Agent Governance
+    - Identity
+    - Data Protection
+    - Threat Modeling
+  Technologies:
+    - Microsoft Entra
+    - Microsoft Purview
+    - Microsoft Defender
+    - Azure AI Foundry
+    - Agent 365</code></pre>
+
+      <div class="flex justify-between items-center mt-8 text-sm">
+        <a href="./01-shift-to-agentic-ai.html" class="text-blue-700 hover:underline font-semibold">← Chapter 1: The Shift to Agentic AI</a>
+        <a href="/workshops/enterprise-ai-security/glossary.html" class="text-blue-700 hover:underline">Glossary</a>
+        <a href="./03-managing-ai-identities.html" class="text-blue-700 hover:underline font-semibold">Chapter 3: Managing AI Identities →</a>
+      </div>
+    </footer>
+
+  </article>
+</div>
+
+</body>
+</html>

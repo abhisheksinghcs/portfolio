@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Enterprise AI Security Workshop — Abhi Singh</title>
+<meta name="description" content="A full-day enterprise workshop on securing generative AI: agentic threat modeling, agent identity governance, data protection, secure AI platform architecture, runtime observability, MCP security, and RAG security." />
+<link rel="canonical" href="https://abhisingh.org/workshops/enterprise-ai-security/" />
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="css/workshop.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "Enterprise AI Security Workshop",
+  "description": "A full-day enterprise workshop on securing generative AI: agentic threat modeling, agent identity governance, data protection, secure AI platform architecture, runtime observability, MCP security, and RAG security.",
+  "provider": { "@type": "Person", "name": "Abhi Singh", "url": "https://abhisingh.org/" },
+  "audience": { "@type": "Audience", "audienceType": "CISO, Security Architect, Enterprise Architect, AI Engineer" },
+  "about": ["AI Security", "Agent Governance", "Identity", "Data Protection", "Threat Modeling"],
+  "hasCourseInstance": {
+    "@type": "CourseInstance",
+    "courseMode": "in-person",
+    "courseWorkload": "PT6H30M"
+  },
+  "url": "https://abhisingh.org/workshops/enterprise-ai-security/"
+}
+</script>
+</head>
+<body class="bg-white text-slate-900">
+
+<header class="border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-5 py-3 text-sm text-slate-500 flex flex-wrap items-center gap-1">
+    <a href="/" class="hover:text-blue-700">Home</a><span>/</span>
+    <a href="/workshops/" class="hover:text-blue-700">Workshops</a><span>/</span>
+    <span class="text-slate-700">Enterprise AI Security Workshop</span>
+  </div>
+</header>
+
+<!-- Banner -->
+<section class="bg-slate-900 text-white">
+  <div class="max-w-6xl mx-auto px-5 py-10">
+    <p class="text-xs font-semibold tracking-wide text-blue-300 uppercase">Workshop</p>
+    <h1 class="text-3xl md:text-4xl font-bold mt-2">Enterprise AI Security Workshop</h1>
+    <p class="mt-3 max-w-2xl text-slate-200">Delivered by Microsoft's Secure AI GBB team to enterprise security and platform engineering audiences. A full day, grounded in real incidents (Samsung's ChatGPT leak, the Amazon Q supply-chain attack) and a running multi-agent case study — not slideware.</p>
+    <p class="mt-3 max-w-2xl text-slate-300 text-sm">Topics: AI threat modeling · agent governance · identity security · data protection · secure AI architecture.</p>
+  </div>
+</section>
+
+<div class="max-w-6xl mx-auto px-5 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+  <div class="lg:col-span-2 wsx-prose">
+    <h2 id="overview">Overview</h2>
+    <p>This workshop treats AI security as a systems problem, not a checklist. It's built around one running example — a FinOps multi-agent application — that each chapter layers its controls onto, so identity, data protection, platform hardening, and runtime observability are shown solving the <em>same</em> architecture's problems rather than four disconnected topics. Two deep-dive chapters (Model Context Protocol security and RAG security) go further into two specific technical areas participants consistently ask about.</p>
+
+    <h2 id="audience">Who this is for</h2>
+    <ul>
+      <li><strong>CISOs</strong> evaluating how existing security programs need to change for agentic AI.</li>
+      <li><strong>Security architects</strong> designing identity, data, and runtime controls for AI systems.</li>
+      <li><strong>Enterprise architects</strong> deciding where AI security controls should live in an existing platform.</li>
+      <li><strong>AI engineers</strong> who need to understand the security implications of the systems they're building.</li>
+    </ul>
+
+    <h2 id="agenda">Agenda</h2>
+    <table>
+      <thead><tr><th>Time</th><th>Session</th><th>Chapter</th></tr></thead>
+      <tbody>
+        <tr><td>9:15 – 10:00</td><td>Evolving Trust Boundary</td><td><a href="./chapters/01-shift-to-agentic-ai.html">Ch. 1–2</a></td></tr>
+        <tr><td>10:00 – 11:00</td><td>Setting up Agent Governance — Agent ID</td><td><a href="./chapters/03-managing-ai-identities.html">Ch. 3</a></td></tr>
+        <tr><td>11:00 – 12:00</td><td>Shadow AI &amp; Data Security</td><td><a href="./chapters/04-data-security-shadow-ai.html">Ch. 4</a></td></tr>
+        <tr><td>12:00 – 1:00</td><td>Lunch break</td><td>—</td></tr>
+        <tr><td>1:00 – 2:00</td><td>Test your AI hacking skill (capture the flag)</td><td>—</td></tr>
+        <tr><td>2:00 – 2:30</td><td>Setting up secure foundation</td><td><a href="./chapters/05-securing-the-ai-platform.html">Ch. 5</a></td></tr>
+        <tr><td>2:30 – 2:45</td><td>Break</td><td>—</td></tr>
+        <tr><td>2:45 – 3:30</td><td>Operating securely, runtime protection, and Q&amp;A</td><td><a href="./chapters/06-operating-securely-at-scale.html">Ch. 6</a></td></tr>
+      </tbody>
+    </table>
+    <p class="text-sm text-slate-500">MCP Security and RAG Security (Chapters 7–8) are technical deep dives delivered as follow-up material.</p>
+
+    <h2 id="chapters">Chapters</h2>
+    <ol class="space-y-3">
+      <li><a href="./chapters/01-shift-to-agentic-ai.html" class="font-semibold">1. The Shift to Agentic AI</a> <span class="text-slate-500 text-sm">· ~8 min</span> — trust boundary evolution and the 8-domain Agentic AI Security Framework.</li>
+      <li><a href="./chapters/02-finops-reference-architecture.html" class="font-semibold">2. The FinOps Reference Architecture</a> <span class="text-slate-500 text-sm">· ~7 min</span> — the running case study and agent anatomy.</li>
+      <li><a href="./chapters/03-managing-ai-identities.html" class="font-semibold">3. Managing AI Identities</a> <span class="text-slate-500 text-sm">· ~9 min</span> — Entra Agent ID: Register, Govern, Protect.</li>
+      <li><a href="./chapters/04-data-security-shadow-ai.html" class="font-semibold">4. Data Security and Shadow AI</a> <span class="text-slate-500 text-sm">· ~9 min</span> — the Samsung case study and Purview's agent protections.</li>
+      <li><a href="./chapters/05-securing-the-ai-platform.html" class="font-semibold">5. Securing the AI Platform</a> <span class="text-slate-500 text-sm">· ~10 min</span> — the Amazon Q incident, content safety, and automated red teaming.</li>
+      <li><a href="./chapters/06-operating-securely-at-scale.html" class="font-semibold">6. Operating AI Securely at Scale</a> <span class="text-slate-500 text-sm">· ~11 min</span> — runtime detection, telemetry design, and Agent 365.</li>
+      <li><a href="./chapters/07-mcp-security.html" class="font-semibold">7. Deep Dive: MCP Security</a> <span class="text-slate-500 text-sm">· ~9 min</span> — the OWASP MCP Top 10 and a reference Azure-native architecture.</li>
+      <li><a href="./chapters/08-rag-security.html" class="font-semibold">8. Deep Dive: RAG Security</a> <span class="text-slate-500 text-sm">· ~10 min</span> — a 7-stage RAG pipeline security walkthrough.</li>
+    </ol>
+    <p><a href="./glossary.html">→ Glossary of terms used throughout this workshop</a></p>
+  </div>
+
+  <aside class="space-y-6">
+    <div class="wsx-callout">
+      <span class="wsx-callout-label">Format</span>
+      Full-day, in-person. ~6.5 hours including breaks, lunch, and a hands-on capture-the-flag exercise.
+    </div>
+
+    <div class="border border-slate-200 rounded-lg p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Slide deck</p>
+      <p class="text-sm text-slate-600 mb-3">The original slide deck (with speaker notes and full talk track) is available on request — it's not offered as a public download.</p>
+      <a href="mailto:abhi@abhisingh.org?subject=Enterprise%20AI%20Security%20Workshop%20deck" class="inline-block bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded hover:bg-blue-800">Request the deck — abhi@abhisingh.org</a>
+    </div>
+
+    <div class="border border-slate-200 rounded-lg p-5">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">In this workshop</p>
+      <ul class="text-sm space-y-1.5 text-slate-600">
+        <li>Real incidents, not hypotheticals</li>
+        <li>One running architecture, layered chapter by chapter</li>
+        <li>Concrete Azure-native controls, not just principles</li>
+        <li>Hands-on capture-the-flag exercise</li>
+      </ul>
+    </div>
+  </aside>
+
+</div>
+
+<footer class="border-t border-slate-200">
+  <div class="max-w-6xl mx-auto px-5 py-8">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Machine-readable metadata</p>
+    <pre class="wsx-metadata"><code>Workshop:
+  Title: Enterprise AI Security Workshop
+  Audience:
+    - CISO
+    - Security Architect
+    - Enterprise Architect
+  Topics:
+    - AI Security
+    - Agent Governance
+    - Identity
+    - Data Protection
+    - Threat Modeling
+  Technologies:
+    - Microsoft Entra
+    - Microsoft Purview
+    - Microsoft Defender
+    - Azure AI Foundry
+    - Agent 365</code></pre>
+    <p class="mt-6 text-sm"><a href="/" class="text-blue-700 hover:underline">← Back to abhisingh.org</a></p>
+  </div>
+</footer>
+
+</body>
+</html>

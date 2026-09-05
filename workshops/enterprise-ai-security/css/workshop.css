@@ -1,0 +1,133 @@
+/* Shared styles for the Enterprise AI Security Workshop.
+   Loaded alongside Tailwind (CDN) for layout utilities; this file covers
+   typography, callouts, and components Tailwind's base doesn't give us
+   for free without the typography plugin. */
+
+:root {
+  --wsx-ink: #0f172a;
+  --wsx-muted: #55627a;
+  --wsx-line: #e2e8f0;
+  --wsx-accent: #1d4ed8;
+  --wsx-accent-soft: #eff6ff;
+  --wsx-warn: #b45309;
+  --wsx-warn-soft: #fffbeb;
+}
+
+body {
+  color: var(--wsx-ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ---- Reading typography for chapter prose ---- */
+.wsx-prose h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  scroll-margin-top: 5.5rem;
+}
+.wsx-prose h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  scroll-margin-top: 5.5rem;
+}
+.wsx-prose p { margin: 0.85rem 0; line-height: 1.7; color: #1e293b; }
+.wsx-prose ul, .wsx-prose ol { margin: 0.85rem 0; padding-left: 1.4rem; line-height: 1.7; }
+.wsx-prose li { margin: 0.3rem 0; }
+.wsx-prose table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.92rem; }
+.wsx-prose th, .wsx-prose td { border: 1px solid var(--wsx-line); padding: 0.55rem 0.75rem; text-align: left; vertical-align: top; }
+.wsx-prose th { background: #f8fafc; font-weight: 600; }
+.wsx-prose code { background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 0.9em; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.wsx-prose a { color: var(--wsx-accent); text-decoration: underline; text-underline-offset: 2px; }
+.wsx-prose figure { margin: 1.5rem 0; }
+.wsx-prose figcaption { font-size: 0.85rem; color: var(--wsx-muted); margin-top: 0.5rem; text-align: center; }
+.wsx-prose img { border: 1px solid var(--wsx-line); border-radius: 6px; }
+
+/* ---- Sidebar callouts (key insight / stat / quote) ---- */
+.wsx-callout {
+  border-left: 3px solid var(--wsx-accent);
+  background: var(--wsx-accent-soft);
+  padding: 0.9rem 1.1rem;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.wsx-callout .wsx-callout-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wsx-accent);
+  margin-bottom: 0.35rem;
+}
+.wsx-callout-warn {
+  border-left-color: var(--wsx-warn);
+  background: var(--wsx-warn-soft);
+}
+.wsx-callout-warn .wsx-callout-label { color: var(--wsx-warn); }
+
+/* ---- Key takeaways box ---- */
+.wsx-takeaways {
+  border: 1px solid var(--wsx-line);
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1.1rem 1.3rem;
+  margin: 2rem 0;
+}
+.wsx-takeaways h2 { margin-top: 0 !important; }
+.wsx-takeaways ul { padding-left: 1.2rem; }
+.wsx-takeaways li { margin: 0.4rem 0; }
+
+/* ---- Metadata / machine-readable block ---- */
+.wsx-metadata {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ---- TOC ---- */
+.wsx-toc a {
+  display: block;
+  padding: 0.3rem 0;
+  color: var(--wsx-muted);
+  font-size: 0.88rem;
+  border-left: 2px solid transparent;
+  padding-left: 0.75rem;
+  text-decoration: none;
+}
+.wsx-toc a:hover { color: var(--wsx-accent); border-left-color: var(--wsx-accent); }
+
+/* ---- Architecture diagram boxes (semantic HTML/CSS diagrams) ---- */
+.wsx-diagram {
+  border: 1px solid var(--wsx-line);
+  border-radius: 8px;
+  padding: 1.25rem;
+  background: #fafbfc;
+  overflow-x: auto;
+}
+.wsx-diagram-row { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin: 0.6rem 0; }
+.wsx-diagram-box {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.82rem;
+  text-align: center;
+  min-width: 120px;
+  line-height: 1.35;
+}
+.wsx-diagram-box strong { display: block; font-size: 0.85rem; margin-bottom: 0.15rem; }
+.wsx-diagram-box.wsx-box-accent { border-color: var(--wsx-accent); background: var(--wsx-accent-soft); }
+.wsx-diagram-arrow { display: flex; align-items: center; justify-content: center; color: var(--wsx-muted); font-size: 1.1rem; }
+.wsx-diagram-label { text-align: center; font-size: 0.78rem; color: var(--wsx-muted); margin: 0.35rem 0; }
+
+/* ---- Glossary term links ---- */
+.wsx-term { border-bottom: 1px dotted var(--wsx-accent); text-decoration: none; color: inherit; cursor: help; }

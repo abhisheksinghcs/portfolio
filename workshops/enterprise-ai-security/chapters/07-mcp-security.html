@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chapter 7: Deep Dive — MCP Security — Enterprise AI Security Workshop</title>
+<meta name="description" content="Model Context Protocol standardizes how agents discover tools and data. That standardization creates its own threat surface: stolen tokens, tool poisoning, shadow MCP servers, and context oversharing." />
+<link rel="canonical" href="https://abhisingh.org/workshops/enterprise-ai-security/chapters/07-mcp-security.html" />
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="../css/workshop.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Deep Dive: MCP Security",
+  "description": "Model Context Protocol standardizes how agents discover tools and data. That standardization creates its own threat surface.",
+  "learningResourceType": "Chapter",
+  "position": 7,
+  "isPartOf": { "@type": "Course", "name": "Enterprise AI Security Workshop", "url": "https://abhisingh.org/workshops/enterprise-ai-security/" },
+  "author": { "@type": "Person", "name": "Abhi Singh", "url": "https://abhisingh.org/" },
+  "about": ["Model Context Protocol", "MCP security", "OWASP MCP Top 10", "Tool poisoning", "OAuth 2.1"],
+  "audience": { "@type": "Audience", "audienceType": "Security Architect, AI Engineer, Platform Engineer" },
+  "timeRequired": "PT9M",
+  "url": "https://abhisingh.org/workshops/enterprise-ai-security/chapters/07-mcp-security.html"
+}
+</script>
+</head>
+<body class="bg-white text-slate-900">
+
+<header class="border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-5 py-3 text-sm text-slate-500 flex flex-wrap items-center gap-1">
+    <a href="/" class="hover:text-blue-700">Home</a><span>/</span>
+    <a href="/workshops/" class="hover:text-blue-700">Workshops</a><span>/</span>
+    <a href="/workshops/enterprise-ai-security/" class="hover:text-blue-700">Enterprise AI Security Workshop</a><span>/</span>
+    <span class="text-slate-700">Chapter 7 · Deep Dive</span>
+  </div>
+  <div class="max-w-6xl mx-auto px-5 pb-6">
+    <p class="text-xs font-semibold tracking-wide text-blue-700 uppercase">Chapter 7 of 8 · Deep Dive · ~9 min read</p>
+    <h1 class="text-3xl font-bold mt-1">Deep Dive: Model Context Protocol (MCP) Security</h1>
+    <p class="text-slate-600 mt-2 max-w-3xl">A standard interface for securely sharing and retrieving context across AI tools and models — and the threat surface that standardization introduces.</p>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-5 py-8 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-10">
+
+  <nav aria-label="Table of contents" class="wsx-toc lg:sticky lg:top-6 lg:self-start order-2 lg:order-1">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">On this page</p>
+    <a href="#summary">Summary</a>
+    <a href="#core-concepts">Core concepts</a>
+    <a href="#architecture">Architecture discussion</a>
+    <a href="#security-considerations">Key security considerations</a>
+    <a href="#practices">Recommended practices</a>
+    <a href="#technologies">Technologies referenced</a>
+    <a href="#takeaways">Key takeaways</a>
+    <div class="mt-6 wsx-callout">
+      <span class="wsx-callout-label">Deep dive</span>
+      This chapter stands alone from Chapters 1–6: MCP introduces its own threat classification (the OWASP MCP Top 10) distinct from the agent-identity and data-security problems covered earlier in this workshop.
+    </div>
+  </nav>
+
+  <article class="wsx-prose order-1 lg:order-2 max-w-3xl">
+
+    <section id="summary">
+      <h2>Summary</h2>
+      <p>Model Context Protocol (MCP) standardizes how AI clients — like Claude or an OpenAI-based agent — discover and use context: local data sources, external APIs, memory stores, vector databases, and tools and plugins, all exposed through <strong>MCP servers</strong>. Standardizing that interface is genuinely valuable — it's what lets an agent built once integrate with many tools without bespoke connectors for each. It also means a vulnerability in the standard, or in how it's implemented, is no longer a single vendor's problem; it's shared across every MCP client and server that follows the spec. This chapter covers the MCP threat map and a reference Azure-native architecture that addresses it.</p>
+    </section>
+
+    <section id="core-concepts">
+      <h2>Core concepts</h2>
+
+      <figure class="my-6">
+        <img src="../images/mcp-concept-diagram.png" alt="Model Context Protocol architecture diagram showing MCP clients, the MCP interface, and MCP servers connecting to external APIs, memory stores, vector databases, and tools" loading="lazy" class="w-full max-w-xl mx-auto" />
+        <figcaption>MCP clients (e.g. Claude, OpenAI-based agents) connect through the MCP interface to MCP servers, which expose external APIs, memory stores, vector databases, tools and plugins, and local data sources.</figcaption>
+      </figure>
+
+      <h3>The MCP threat map</h3>
+      <p>Risk maps to four layers, each with its own MCP-specific failure modes:</p>
+      <table>
+        <thead><tr><th>Layer</th><th>What's at risk</th><th>Representative threats</th></tr></thead>
+        <tbody>
+          <tr><td>Applications &amp; agents</td><td>User/agent interaction with MCP-based apps</td><td>Lack of standard authorization and credential theft; tool poisoning and tool shadowing; session hijacking and context sharing</td></tr>
+          <tr><td>AI platform</td><td>The GenAI platform used by MCP services</td><td>Model supply-chain vulnerabilities; model tampering; insufficient model-scanning coverage</td></tr>
+          <tr><td>Data</td><td>Data leveraged by MCP consumers and producers</td><td>Exfiltration</td></tr>
+          <tr><td>Infrastructure</td><td>MCP hosting and development platform</td><td>OS exploits; improper network configurations</td></tr>
+        </tbody>
+      </table>
+      <p>MCP risk specifically targets four components: the <strong>MCP client</strong>, <strong>MCP server</strong>, and <strong>MCP host</strong>; the <strong>underlying LLM</strong> used by the MCP client; the <strong>resources</strong> (data sources, files) being shared; and the <strong>cloud infrastructure or developer environment</strong> the whole system runs on.</p>
+      <p><strong>Tool poisoning</strong> and <strong>tool shadowing</strong> deserve a specific definition since they're MCP-native risks that don't have a direct analog in Chapters 1–6: tool poisoning is an attacker embedding malicious instructions inside a tool's description or metadata, which the calling LLM reads and follows as if it were legitimate guidance. Tool shadowing is a malicious tool registering itself with a name or description that impersonates a trusted tool, redirecting calls intended for the real one.</p>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture discussion — a reference Azure-native MCP deployment</h2>
+      <p>The workshop maps specific OWASP MCP Top 10 risks (<a href="https://owasp.org/www-project-mcp-top-10/" target="_blank" rel="noopener">owasp.org/www-project-mcp-top-10</a>) to concrete Azure-native controls in a sample provider workload:</p>
+
+      <figure class="wsx-diagram" role="img" aria-label="Reference Azure-native MCP architecture">
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box">User / Agent</div>
+        </div>
+        <div class="wsx-diagram-label">↓ OAuth 2.1 (MCP 01: stolen token · MCP 02: auth &amp; RBAC)</div>
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box wsx-box-accent"><strong>Azure API Management</strong>Auth · Telemetry · Rate limiting · Content Safety</div>
+        </div>
+        <div class="wsx-diagram-label">↓ private network + private endpoint (MCP 05/06: injection prevention)</div>
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box"><strong>MCP Server</strong>Entra ID auth (aud claims)</div>
+          <div class="wsx-diagram-box"><strong>Key Vault</strong>Secrets (MCP 04: supply chain)</div>
+        </div>
+        <div class="wsx-diagram-label">↓</div>
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box"><strong>Azure AI Foundry</strong>LLM hosting</div>
+          <div class="wsx-diagram-box"><strong>Content Safety</strong></div>
+        </div>
+        <div class="wsx-diagram-label">↕ anomaly detection (MCP 08: telemetry · MCP 09: shadow MCP)</div>
+        <div class="wsx-diagram-row">
+          <div class="wsx-diagram-box">Defender for Cloud</div>
+          <div class="wsx-diagram-box">Microsoft Sentinel</div>
+        </div>
+        <figcaption>Sample Azure-native MCP provider workload. All interactions to the MCP server and LLMs route through APIM; the MCP server itself uses Entra ID for auth (validating audience claims) and to access Azure services; all communication is over a private network and private endpoint.</figcaption>
+      </figure>
+
+      <p>Each component maps to specific OWASP MCP Top 10 risks the workshop calls out directly:</p>
+      <ul>
+        <li><strong>MCP 01 (Stolen Token) / MCP 02 (Auth and RBAC)</strong> — addressed by requiring OAuth 2.1 at the APIM layer before any request reaches the MCP server.</li>
+        <li><strong>MCP 04 (Software Supply Chain Attacks)</strong> — addressed by storing secrets in Key Vault rather than embedding them in MCP server code or configuration.</li>
+        <li><strong>MCP 05 and 06 (Injection Prevention)</strong> — addressed by routing all traffic through APIM's content-safety and prompt-inspection policies, and by keeping communication on a private network.</li>
+        <li><strong>MCP 07 (Permanent Access)</strong> — mitigated by the same time-bound access-package model from <a href="./03-managing-ai-identities.html">Chapter 3</a>, applied to MCP server-to-resource access.</li>
+        <li><strong>MCP 08 (Telemetry)</strong> — APIM provides telemetry and rate limiting at the gateway; Defender for Cloud and Sentinel provide security anomaly detection across the Azure services in the architecture.</li>
+        <li><strong>MCP 09 (Shadow MCP)</strong> — addressed the same way shadow AI is addressed in <a href="./04-data-security-shadow-ai.html">Chapter 4</a>: discovery has to precede governance. An MCP server nobody registered is invisible to every control in this diagram.</li>
+        <li><strong>MCP 10 (Context Injection &amp; Oversharing)</strong> — addressed by scoping what context an MCP server can retrieve and share per caller, rather than exposing a uniform, maximal context window to every client.</li>
+      </ul>
+    </section>
+
+    <section id="security-considerations">
+      <h2>Key security considerations</h2>
+      <ul>
+        <li><strong>MCP's biggest security property is also its biggest risk: standardization.</strong> A vulnerability in a widely-adopted MCP server implementation, or in the protocol's auth model, has blast radius across every client that trusts it — not just one vendor's product.</li>
+        <li><strong>Tool poisoning bypasses traditional input validation entirely.</strong> The malicious content lives in tool metadata the LLM is expected to trust, not in user-supplied input a WAF or content filter would inspect.</li>
+        <li><strong>Shadow MCP servers are structurally similar to shadow AI (Chapter 4), but harder to detect</strong> — an MCP server can be stood up by a developer in minutes, with no equivalent of a SaaS app catalog to discover it against.</li>
+        <li><strong>A gateway (APIM) cannot substitute for authorization the MCP server itself must still perform.</strong> APIM enforces auth and rate limiting in front of the server; the MCP server's own validation of audience claims and per-resource access is still required behind it.</li>
+      </ul>
+    </section>
+
+    <section id="practices">
+      <h2>Recommended practices</h2>
+      <ol>
+        <li>Require OAuth 2.1 for every MCP client-to-server connection; do not accept static API keys as a substitute for token-based auth with expiry.</li>
+        <li>Route all MCP traffic through a gateway (APIM or equivalent) that provides auth, telemetry, rate limiting, and content-safety inspection in one place, rather than reimplementing these per MCP server.</li>
+        <li>Treat MCP server discovery the same way you treat shadow AI discovery in Chapter 4: maintain a registry, and treat any MCP server not in that registry as an incident, not an oversight.</li>
+        <li>Scope context sharing per caller rather than exposing a maximal, uniform context window — this is the direct mitigation for MCP 10 (context injection and oversharing).</li>
+        <li>Store MCP server secrets in a managed vault (Key Vault or equivalent), never in server code or environment-variable defaults committed to source control.</li>
+      </ol>
+    </section>
+
+    <section id="technologies">
+      <h2>Technologies referenced</h2>
+      <ul>
+        <li><strong>Azure API Management (APIM)</strong> — MCP gateway providing auth, telemetry, rate limiting, and content safety.</li>
+        <li><strong>Microsoft Entra ID</strong> — MCP server authentication via OAuth 2.1 and audience-claim validation.</li>
+        <li><strong>Azure Key Vault</strong> — MCP server secret storage.</li>
+        <li><strong>Azure AI Foundry</strong> — LLM hosting behind the MCP gateway.</li>
+        <li><strong>Microsoft Defender for Cloud</strong> and <strong>Microsoft Sentinel</strong> — anomaly detection across the MCP architecture's Azure services.</li>
+      </ul>
+    </section>
+
+    <div id="takeaways" class="wsx-takeaways">
+      <h2>Key takeaways</h2>
+      <ul>
+        <li>MCP's standardization is valuable and creates shared-blast-radius risk at the same time — a protocol-level or common-implementation vulnerability affects every adopter, not one vendor.</li>
+        <li>Tool poisoning and tool shadowing are MCP-native attack patterns that live in tool metadata, not user input — traditional input validation does not catch them.</li>
+        <li>A reference architecture built on APIM + Entra ID + Key Vault + Defender/Sentinel maps directly onto the OWASP MCP Top 10 risk categories the deck references (MCP 01, 02, 04, 05/06, 07, 08, 09, 10).</li>
+      </ul>
+    </div>
+
+    <footer class="mt-10 pt-6 border-t border-slate-200">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">Machine-readable metadata</p>
+      <pre class="wsx-metadata"><code>Workshop:
+  Title: Enterprise AI Security Workshop
+  Chapter: 7 of 8 — Deep Dive: MCP Security
+  Audience:
+    - CISO
+    - Security Architect
+    - Enterprise Architect
+  Topics:
+    - AI Security
+    - Agent Governance
+    - Identity
+    - Data Protection
+    - Threat Modeling
+  Technologies:
+    - Microsoft Entra
+    - Microsoft Purview
+    - Microsoft Defender
+    - Azure AI Foundry
+    - Agent 365</code></pre>
+
+      <div class="flex justify-between items-center mt-8 text-sm">
+        <a href="./06-operating-securely-at-scale.html" class="text-blue-700 hover:underline font-semibold">← Chapter 6: Operating AI Securely at Scale</a>
+        <a href="/workshops/enterprise-ai-security/glossary.html" class="text-blue-700 hover:underline">Glossary</a>
+        <a href="./08-rag-security.html" class="text-blue-700 hover:underline font-semibold">Chapter 8: Deep Dive — RAG Security →</a>
+      </div>
+    </footer>
+
+  </article>
+</div>
+
+</body>
+</html>

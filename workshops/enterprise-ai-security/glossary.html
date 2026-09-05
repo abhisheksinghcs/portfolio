@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Glossary — Enterprise AI Security Workshop</title>
+<meta name="description" content="Definitions for terms used throughout the Enterprise AI Security Workshop: agents, RAG, MCP, prompt injection, agent identity, and the Microsoft security products referenced across all eight chapters." />
+<link rel="canonical" href="https://abhisingh.org/workshops/enterprise-ai-security/glossary.html" />
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="css/workshop.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "DefinedTermSet",
+  "name": "Enterprise AI Security Workshop Glossary",
+  "description": "Definitions for terms used throughout the Enterprise AI Security Workshop.",
+  "isPartOf": { "@type": "Course", "name": "Enterprise AI Security Workshop", "url": "https://abhisingh.org/workshops/enterprise-ai-security/" },
+  "url": "https://abhisingh.org/workshops/enterprise-ai-security/glossary.html"
+}
+</script>
+</head>
+<body class="bg-white text-slate-900">
+
+<header class="border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-5 py-3 text-sm text-slate-500 flex flex-wrap items-center gap-1">
+    <a href="/" class="hover:text-blue-700">Home</a><span>/</span>
+    <a href="/workshops/" class="hover:text-blue-700">Workshops</a><span>/</span>
+    <a href="/workshops/enterprise-ai-security/" class="hover:text-blue-700">Enterprise AI Security Workshop</a><span>/</span>
+    <span class="text-slate-700">Glossary</span>
+  </div>
+  <div class="max-w-6xl mx-auto px-5 pb-6">
+    <h1 class="text-3xl font-bold mt-1">Glossary</h1>
+    <p class="text-slate-600 mt-2 max-w-3xl">Every term below is used consistently across all 8 chapters. Terms are grounded in how this workshop uses them; where a term has a broader industry definition, this reflects the workshop's specific usage.</p>
+  </div>
+</header>
+
+<div class="max-w-3xl mx-auto px-5 py-8 wsx-prose">
+
+  <h2 id="foundations">AI foundations</h2>
+  <dl class="space-y-4">
+    <div><dt class="font-semibold">Large Language Model (LLM)</dt><dd>A model trained on large volumes of text that generates and reasons over natural language; powers an agent's reasoning and language understanding (Chapter 2).</dd></div>
+    <div><dt class="font-semibold">Prompt</dt><dd>The input text given to a model to elicit a response.</dd></div>
+    <div><dt class="font-semibold">System prompt</dt><dd>Instructions given to a model that define its behavior and constraints, distinct from user-supplied prompts. A target of "prompt override" attacks (Chapter 8).</dd></div>
+    <div><dt class="font-semibold">Meta prompt</dt><dd>A prompt used to generate or refine other prompts.</dd></div>
+    <div><dt class="font-semibold">Tokens</dt><dd>The units (word fragments) a model processes; attacker influence over even a single token can change a model's output (Chapter 6).</dd></div>
+    <div><dt class="font-semibold">Context window</dt><dd>The maximum amount of text (in tokens) a model can consider at once, including the prompt, retrieved content, and conversation history.</dd></div>
+    <div><dt class="font-semibold">Inference</dt><dd>The act of a model producing an output from an input; the runtime execution of a model (as opposed to training).</dd></div>
+    <div><dt class="font-semibold">Hallucination</dt><dd>A model producing output that is fluent but factually incorrect or fabricated, including invented actions or commands (Chapter 8).</dd></div>
+    <div><dt class="font-semibold">Groundedness</dt><dd>The degree to which a model's output is supported by retrieved or provided source data, rather than fabricated.</dd></div>
+    <div><dt class="font-semibold">Embedding</dt><dd>A numeric vector representation of text (or other content) used for similarity search in a vector database.</dd></div>
+    <div><dt class="font-semibold">Neural network / model training</dt><dd>The underlying architecture and process by which a model learns from data.</dd></div>
+  </dl>
+
+  <h2 id="agents">Agents and agentic systems</h2>
+  <dl class="space-y-4">
+    <div><dt class="font-semibold">Chatbot</dt><dd>A passive, single-model conversational system with a static trust boundary between user and model (Chapter 1, Stage 1).</dd></div>
+    <div><dt class="font-semibold">Agent</dt><dd>An AI system with a spectrum of autonomy — interactive, autonomous, or collaborative — that can plan and take action, not just respond (Chapter 1, Stage 2).</dd></div>
+    <div><dt class="font-semibold">Interactive agent</dt><dd>An agent that performs a single, specific, repetitive task on demand, acting only when the user asks.</dd></div>
+    <div><dt class="font-semibold">Autonomous agent</dt><dd>A goal-oriented agent that creates plans and coordinates actions on the user's behalf and schedule.</dd></div>
+    <div><dt class="font-semibold">Collaborative agent</dt><dd>A learning-driven agent that provisions its own access and resources and pursues goals on its own behalf.</dd></div>
+    <div><dt class="font-semibold">Skills</dt><dd>Discrete capabilities an agent can invoke, often via tools or plugins.</dd></div>
+    <div><dt class="font-semibold">Agent sprawl</dt><dd>The proliferation of agents across an organization without centralized inventory or governance (Chapters 2 and 3).</dd></div>
+    <div><dt class="font-semibold">Agentic AI Security Framework</dt><dd>The 8-domain framework (Asset Inventory, Identity &amp; Access, Data Security, Secure SDLC, Red Team, Runtime Security, Incident Response, Third-Party &amp; Shadow AI) used throughout this workshop to map controls to responsibility (Chapter 1).</dd></div>
+  </dl>
+
+  <h2 id="rag-mcp">RAG and MCP</h2>
+  <dl class="space-y-4">
+    <div><dt class="font-semibold">Retrieval-Augmented Generation (RAG)</dt><dd>Grounding a model's response in retrieved data rather than relying solely on the model's training. Covered as a 7-stage pipeline in Chapter 8.</dd></div>
+    <div><dt class="font-semibold">Vector database</dt><dd>A database optimized for storing and searching embeddings by similarity, used at the Indexing and Retrieval stages of a RAG pipeline.</dd></div>
+    <div><dt class="font-semibold">Model Context Protocol (MCP)</dt><dd>A standard interface for AI clients to discover and use context — data sources, APIs, memory, tools — through MCP servers (Chapter 7).</dd></div>
+    <div><dt class="font-semibold">Tool poisoning</dt><dd>An attacker embedding malicious instructions inside a tool's description or metadata, which the calling model reads and follows as legitimate guidance (Chapter 7).</dd></div>
+    <div><dt class="font-semibold">Tool shadowing</dt><dd>A malicious tool registering under a name or description that impersonates a trusted tool, redirecting calls intended for the real one (Chapter 7).</dd></div>
+    <div><dt class="font-semibold">Shadow MCP</dt><dd>An MCP server deployed without being registered or governed — the MCP-specific analog of shadow AI (Chapter 7).</dd></div>
+  </dl>
+
+  <h2 id="attacks">Attacks and failure modes</h2>
+  <dl class="space-y-4">
+    <div><dt class="font-semibold">Jailbreak</dt><dd>A technique used to bypass a model's safety guardrails and elicit disallowed behavior.</dd></div>
+    <div><dt class="font-semibold">Prompt injection</dt><dd>An attack that manipulates a model's behavior through crafted input. See UPIA and XPIA below.</dd></div>
+    <div><dt class="font-semibold">UPIA (User Prompt Injection Attack)</dt><dd>Direct prompt injection — malicious instructions supplied directly by the user in a prompt.</dd></div>
+    <div><dt class="font-semibold">XPIA (Cross Prompt Injection Attack)</dt><dd>Indirect prompt injection — malicious instructions embedded in retrieved content (a document, web page, or tool output) that the model treats as trustworthy.</dd></div>
+    <div><dt class="font-semibold">Data poisoning</dt><dd>Corrupting training data, retrieved context, or platform-level data so a model's behavior or output is manipulated; appears at multiple layers of the Gen AI threat landscape (Chapter 6).</dd></div>
+    <div><dt class="font-semibold">Model theft</dt><dd>Unauthorized extraction or replication of a proprietary model's weights or behavior.</dd></div>
+    <div><dt class="font-semibold">Shadow AI</dt><dd>Unapproved use of AI tools, agents, or coding assistants outside organizational governance (Chapter 4).</dd></div>
+  </dl>
+
+  <h2 id="identity-data">Identity, data, and governance</h2>
+  <dl class="space-y-4">
+    <div><dt class="font-semibold">Microsoft Entra Agent ID</dt><dd>Identity platform for AI agents built on the Register, Govern, Protect model (Chapter 3).</dd></div>
+    <div><dt class="font-semibold">Conditional Access</dt><dd>Policy enforcement that grants or denies access based on identity, device, location, and risk signals — extended to agents in Chapter 3.</dd></div>
+    <div><dt class="font-semibold">Identity Protection</dt><dd>Risk-based detection that flags anomalous sign-in or access behavior and can automatically restrict access.</dd></div>
+    <div><dt class="font-semibold">RBAC (Role-Based Access Control)</dt><dd>Assigning permissions based on role rather than individual identity; a recurring control across Storage and Indexing stages in Chapter 8.</dd></div>
+    <div><dt class="font-semibold">DSPM (Data Security Posture Management)</dt><dd>Visibility into data risk and exposure, extended to AI agents by Microsoft Purview (Chapter 4).</dd></div>
+    <div><dt class="font-semibold">DLP (Data Loss Prevention)</dt><dd>Controls that detect and block sensitive data from leaving a managed boundary, including via AI prompts (Chapter 4).</dd></div>
+    <div><dt class="font-semibold">CSPM (Cloud Security Posture Management)</dt><dd>Continuous assessment of cloud configuration against security best practices; Defender CSPM extends this to AI workloads (Chapter 5).</dd></div>
+    <div><dt class="font-semibold">Microsoft Agent 365</dt><dd>Unified IT control plane for agent registration, governance, security, and lifecycle across first-party, third-party, and custom agents (Chapter 6).</dd></div>
+  </dl>
+
+  <h2 id="testing">Testing and detection</h2>
+  <dl class="space-y-4">
+    <div><dt class="font-semibold">PyRIT (Python Risk Identification Tool)</dt><dd>Microsoft's open-source framework for automated adversarial testing of AI systems, used by the Azure AI Foundry AI Red Teaming Agent (Chapter 5).</dd></div>
+    <div><dt class="font-semibold">Attack Success Rate (ASR)</dt><dd>A metric tracking what proportion of adversarial test prompts successfully elicit unsafe or unintended model behavior (Chapter 5).</dd></div>
+    <div><dt class="font-semibold">OWASP MCP Top 10</dt><dd>An emerging OWASP project cataloguing the top security risks specific to Model Context Protocol deployments (Chapter 7). See <a href="https://owasp.org/www-project-mcp-top-10/" target="_blank" rel="noopener">owasp.org/www-project-mcp-top-10</a>.</dd></div>
+  </dl>
+
+  <div class="mt-10 pt-6 border-t border-slate-200 flex justify-between text-sm">
+    <a href="/workshops/enterprise-ai-security/" class="text-blue-700 hover:underline font-semibold">← Back to workshop overview</a>
+    <a href="/workshops/enterprise-ai-security/chapters/01-shift-to-agentic-ai.html" class="text-blue-700 hover:underline font-semibold">Start at Chapter 1 →</a>
+  </div>
+</div>
+
+</body>
+</html>

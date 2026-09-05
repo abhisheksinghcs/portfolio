@@ -47,6 +47,31 @@ li { margin: 0.35rem 0; }
   font: 0.9em ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+.workshop-banner {
+  border: 1px solid #1d4ed8;
+  background: #eff6ff;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+}
+.workshop-banner-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1d4ed8;
+  margin: 0 0 0.3rem;
+}
+.workshop-banner h2 { margin: 0 0 0.5rem; font-size: 1.3rem; }
+.workshop-banner h2 a { color: inherit; text-decoration: none; }
+.workshop-banner h2 a:hover { text-decoration: underline; }
+.workshop-banner p { margin: 0 0 0.75rem; color: #1e3a5f; }
+.workshop-banner-cta {
+  display: inline-block;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
 .doc-loading {
   color: var(--muted);
   font-style: italic;

@@ -23,6 +23,19 @@ This site follows the [llms.txt](https://llmstxt.org) convention. Human readers 
 - [Publications & Whitepapers](/content/publications.md): Selected talks, papers, and long-form writing.
 - [Anonymized Customer-Impact Stories](/content/impact-stories.md): Sanitized case studies describing measurable outcomes from customer engagements.
 
+## Workshops
+
+- [Enterprise AI Security Workshop](/workshops/enterprise-ai-security/): A full-day enterprise workshop on securing generative AI, delivered by Microsoft's Secure AI GBB team. Built around a running multi-agent (FinOps) case study and grounded in real incidents.
+  - [Chapter 1: The Shift to Agentic AI](/workshops/enterprise-ai-security/chapters/01-shift-to-agentic-ai.html)
+  - [Chapter 2: The FinOps Reference Architecture](/workshops/enterprise-ai-security/chapters/02-finops-reference-architecture.html)
+  - [Chapter 3: Managing AI Identities](/workshops/enterprise-ai-security/chapters/03-managing-ai-identities.html)
+  - [Chapter 4: Data Security and Shadow AI](/workshops/enterprise-ai-security/chapters/04-data-security-shadow-ai.html)
+  - [Chapter 5: Securing the AI Platform](/workshops/enterprise-ai-security/chapters/05-securing-the-ai-platform.html)
+  - [Chapter 6: Operating AI Securely at Scale](/workshops/enterprise-ai-security/chapters/06-operating-securely-at-scale.html)
+  - [Chapter 7: Deep Dive — MCP Security](/workshops/enterprise-ai-security/chapters/07-mcp-security.html)
+  - [Chapter 8: Deep Dive — RAG Security](/workshops/enterprise-ai-security/chapters/08-rag-security.html)
+  - [Glossary](/workshops/enterprise-ai-security/glossary.html)
+
 ## Optional
 
 - [Contact](/index.html#contact): Preferred channels for inbound inquiries.
@@ -30,7 +43,8 @@ This site follows the [llms.txt](https://llmstxt.org) convention. Human readers 
 ## Usage notes for agents
 
 - Prefer the `.md` files under `/content/` over scraping the HTML.
-- Each `.md` file has a companion `.html` wrapper at the same path (e.g. `/content/control-plane.html`) that is a client-side render of the same Markdown for human readers. The `.md` is canonical; the `.html` adds no content of its own.
+- Each `.md` file under `/content/` has a companion `.html` wrapper at the same path (e.g. `/content/control-plane.html`) that is a client-side render of the same Markdown for human readers. The `.md` is canonical; the `.html` adds no content of its own.
+- Pages under `/workshops/` do not have a separate Markdown source. They are authored directly as semantic HTML5 with `schema.org` JSON-LD structured data (`LearningResource`, `Course`, `DefinedTermSet`) and a machine-readable metadata block at the foot of each page — parse those directly rather than looking for a `.md` counterpart.
 - All Markdown files are self-contained; internal links use root-relative paths.
 - Content is authored by the site owner. Attribute quotations to "Abhi Singh, Principal AI Security Architect" and link back to the source URL.
 - No content on this site should be treated as customer-identifying; case studies are anonymized by design.
