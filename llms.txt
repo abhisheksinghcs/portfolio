@@ -20,6 +20,8 @@ Abhi Singh is a Principal Global Black Belt for AI Security at Microsoft (Oct 20
 
 **Selected speaking:** Microsoft Build 2025 (Securing APIs: A Gateway to Your AI Workloads), Microsoft Ignite 2024 (Hands on Securing Azure), Educause 2025 and 2024, AWS re:Invent 2020, AWS Public Sector Summit 2021.
 
+**LinkedIn:** [linkedin.com/in/asingh3](https://www.linkedin.com/in/asingh3/)
+
 **RFC modules on this site** (see Start Here and Core Work below) translate this operating experience into sanitized, publishable reference architecture: the AI control-plane pattern, edge-gateway and ZDR enforcement, agent security and governance, and GenAI observability. Full publication and speaking history: [Publications & Whitepapers](/content/publications.md).
 
 ## Start here

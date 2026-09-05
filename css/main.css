@@ -29,6 +29,14 @@ h2 { margin-top: 2rem; font-size: 1.15rem; }
 
 .tagline { color: var(--muted); margin: 0; }
 
+.about-links {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+.about-links a {
+  font-weight: 600;
+}
+
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
