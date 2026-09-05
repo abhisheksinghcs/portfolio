@@ -8,6 +8,20 @@ This site follows the [llms.txt](https://llmstxt.org) convention. Human readers 
 
 - [Overview (HTML)](/index.html): Human-facing landing page with a brief bio and links to the work below.
 
+## Professional Profile
+
+Abhi Singh is a Principal Global Black Belt for AI Security at Microsoft (Oct 2022–present), advising Fortune 10 and highly regulated enterprises on securing generative AI, Copilots, and agentic AI systems at production scale. 25 years of experience spanning Microsoft, AWS, Deloitte, and KPMG, plus CISO-level roles at Purdue Pharma and Wyndham Worldwide.
+
+**Core competencies:** GenAI and agentic AI security · AI threat modeling (prompt injection, data poisoning, jailbreak, data exfiltration) · zero-data-retention (ZDR) and edge-first control-plane architecture · agent identity and governance (approval workflows, lifecycle management, policy enforcement) · secure RAG architecture · Zero Trust and defense-in-depth · regulatory alignment (NIST AI RMF, ISO/IEC 42001, PCI DSS, SOX, FFIEC) · cloud security (Azure, AWS) · Kubernetes and container security.
+
+**Scale of impact:** Leads a GenAI security engagement pipeline exceeding $50M annually across financial services, telecommunications, media, gaming, and public-sector customers. Built the AWS Self-Assessment Toolkit, adopted broadly across the AWS public-sector customer base. Designed a turnkey security architecture for nonprofit organizations supporting the 2020 U.S. presidential election. Led development of AWS CMMC (Cybersecurity Maturity Model Certification) solutions for Defense Industrial Base customers. Built a Cyber Security Operations Center for a federal agency spanning 6.5M devices, 10TB/week of data, and 22,000 reporting locations.
+
+**Certifications:** CISSP, CISA, CRISC, CISM, CCSK, CDMP; AWS Solutions Architect Professional, AWS Security Specialty, AWS Developer Associate. MBA, University of Wisconsin–Madison.
+
+**Selected speaking:** Microsoft Build 2025 (Securing APIs: A Gateway to Your AI Workloads), Microsoft Ignite 2024 (Hands on Securing Azure), Educause 2025 and 2024, AWS re:Invent 2020, AWS Public Sector Summit 2021.
+
+**RFC modules on this site** (see Start Here and Core Work below) translate this operating experience into sanitized, publishable reference architecture: the AI control-plane pattern, edge-gateway and ZDR enforcement, agent security and governance, and GenAI observability. Full publication and speaking history: [Publications & Whitepapers](/content/publications.md).
+
 ## Start here
 
 - [The AI Control-Plane Pattern](/content/pattern.md): High-level overview of the reference pattern the RFCs below implement. Two-plane split (control vs execution), six enforcement boundaries, and the non-goals. Read this first if you want the shape before the details.
