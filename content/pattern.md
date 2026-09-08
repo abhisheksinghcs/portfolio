@@ -79,6 +79,18 @@ Three things this pattern is deliberately not, because misunderstanding any of t
 
 If a change alters what your agents may do at all, it is a control-plane change. If a change alters what the current request does, it is an execution-plane change. A PEP is where the first decides the second.
 
+## Building on published work
+
+This pattern builds on the monitoring and threat-protection work that Umesh Nagdev and I published in the Microsoft Defender for Cloud Blog series, [Securing GenAI Workloads in Azure: A Complete Guide to Monitoring and Threat Protection](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/securing-genai-workloads-in-azure-a-complete-guide-to-monitoring-and-threat-prot/4463145).
+
+That series focuses on collecting and operationalizing security signals from Azure GenAI workloads. The control-plane pattern addresses the architectural question behind those signals: where should policy be enforced, which identity should be carried through each operation, and how should every enforcement point produce consistent decision evidence?
+
+The RFCs on this site extend that work into three areas:
+
+- Preventive controls for agent admission, retrieval, and model access — [Control-Plane RFC](/content/control-plane.md).
+- Authorization controls for tools and side effects — [Agent Security RFC](/content/agent-security.md).
+- A normalized evidence model for investigation, detection, and response — [Observability RFC](/content/observability.md).
+
 ## Where to go next
 
 - [Control-Plane RFC](/content/control-plane.md) — edge gateway, OIDC-to-ephemeral-credential exchange, RAG namespace isolation, ZDR mandate. Boundaries 1–3.

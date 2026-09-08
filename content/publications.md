@@ -13,6 +13,8 @@
 
 ## Microsoft Tech Community — Securing Gen AI workloads
 
+*Co-authored with Umesh Nagdev.*
+
 - [Securing multi-cloud Gen AI workloads using Azure-native capabilities](https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/securing-multi-cloud-gen-ai-workloads-using-azure-native/ba-p/4222728)
 - [Protecting Azure AI workloads using Threat Protection for AI in Defender for Cloud](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/protecting-azure-ai-workloads-using-threat-protection-for-ai-in-defender-for-clo/4378474)
 - [Securing GenAI workloads in Azure: a complete guide to monitoring and threat protection](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/securing-genai-workloads-in-azure-a-complete-guide-to-monitoring-and-threat-prot/4463145)
@@ -20,6 +22,8 @@
 - [Part 3 — Unified Security Intelligence: orchestrating GenAI threat detection with Microsoft Sentinel](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/part-3-unified-security-intelligence---orchestrating-genai-threat-detection-with/4477556)
 
 ## Microsoft Tech Community — Kubernetes security with Microsoft Sentinel
+
+*Co-authored with Umesh Nagdev.*
 
 - [Monitoring Kubernetes clusters, image build environment, and container registries with Sentinel](https://techcommunity.microsoft.com/t5/microsoft-sentinel-blog/monitoring-kubernetes-clusters-image-build-environment-and/ba-p/4062115)
 - [How to set up Sentinel data connectors for Kubernetes and GitHub](https://techcommunity.microsoft.com/t5/microsoft-sentinel-blog/how-to-set-up-sentinel-data-connectors-for-kubernetes-and-github/ba-p/4068994)

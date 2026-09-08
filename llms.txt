@@ -32,7 +32,7 @@ Abhi Singh is a Principal Global Black Belt for AI Security at Microsoft (Oct 20
 
 - [AI Control-Plane Architecture](/content/control-plane.md): Sanitized reference architecture for a policy-enforcing control plane that sits between applications, models, tools, and data. Covers identity, policy, routing, and audit.
 - [Agent Security & Governance Framework](/content/agent-security.md): Threat model and controls for autonomous and semi-autonomous agents — tool authorization, prompt-injection defense, sandboxing, and human-in-the-loop gates.
-- [GenAI Observability Model](/content/observability.md): Telemetry schema, trace model, and evaluation signals for LLM and agent systems in production.
+- [GenAI Observability Model](/content/observability.md): Normalized event schema, identity correlation (user/workload/agent), and policy-drift detection across all six control-plane enforcement boundaries. Extends the published Azure GenAI monitoring series (co-authored with Umesh Nagdev) with the architectural layer — schema and correlation — that pipeline assumes.
 
 ## Writing
 

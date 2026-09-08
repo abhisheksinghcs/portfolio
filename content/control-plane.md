@@ -650,6 +650,8 @@ async def _audit_sink_write(rec: dict[str, Any]) -> None:
 
 ## 6. Explicitly out of scope for this RFC
 
+> The enforcement points described in this RFC emit policy-decision evidence for the monitoring and threat-protection architecture discussed in our [Azure GenAI security series](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/securing-genai-workloads-in-azure-a-complete-guide-to-monitoring-and-threat-prot/4463145) (co-authored with Umesh Nagdev). The full event schema, correlation model, and detection design are defined in the Observability RFC.
+
 - Per-tool authorization, argument schemas, and human-in-the-loop gates for agents — [RFC-015 Agent Security](/content/agent-security.md).
 - Trace schema, evaluation signals, and drift detection — [RFC-016 GenAI Observability](/content/observability.md).
 - Air-gapped / on-prem deployments — same shape, different edge (Envoy WASM filter instead of ASGI, in-cluster STS). Separate RFC when we have a first customer.
