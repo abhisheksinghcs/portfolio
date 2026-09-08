@@ -42,9 +42,9 @@ Not everything belongs in one place. The control plane holds authority; the exec
 | Policy definitions and versions | Control | Signed OPA bundles, canary + rollback, per-tenant thresholds. |
 | Identity blueprints and lifecycle | Control | Entra Agent ID (or equivalent) with delegation chain and sponsor. |
 | Risk classification and exceptions | Control | Governance-owned. App teams do not self-classify. |
-| Policy decision point (PDP) | Logically central, physically replicated | OPA sidecar over UDS in each pod. Off-box PDPs blow the 20 ms budget. |
+| Policy decision point (PDP) | Logically central, physically replicated | OPA sidecar over UDS in each pod, so the decision call stays local to the request path rather than a remote network hop. |
 | Edge / API gateway | Execution, distributed by region | Envoy at PoP or Azure APIM. Handles TLS, OIDC verify, cheap classifier gates. |
-| Origin control plane | Execution, per environment | Applies obligations (redact/route/log), mints ephemeral credentials, runs output DLP. |
+| AI mediation service | Execution, per environment | Applies policy obligations (redact, route, restrict), calls retrieval and models under a workload identity, forwards decision evidence. It is a PEP, not the control plane itself. |
 | Tenant-isolated retrieval | Execution, at the vector store | Namespace per tenant. Tenant resolved from the token, not the request body. |
 | Tool authorization | Execution, at gateway AND at tool | The gateway check does not replace the tool's own OAuth resource-server check. |
 | Business systems | Execution, unchanged | The CRM, ERP, or database still runs its own row-level authorization. |
@@ -73,7 +73,7 @@ Three things this pattern is deliberately not, because misunderstanding any of t
 
 - **Not a single pane of glass.** A registry that lists your agents is inventory, not enforcement. If an agent runs in an SDK path that never hits your gateway, listing it in a portal does not govern it. Inventory without interception is visibility.
 - **Not a replacement for resource-side authorization.** A gateway PEP can say "this agent is allowed to call the CRM's `update` API." The CRM still has to independently authorize the specific record change. Skipping this is how confused-deputy incidents happen.
-- **Not a monolith.** The PDP is logically central but physically replicated as a sidecar. Off-box PDP calls on the hot path burn 30–80 ms per hop; they do not survive the 20 ms budget. Central policy authority, distributed enforcement — not central service, distributed clients.
+- **Not a monolith.** The PDP is logically central but physically replicated as a sidecar. A remote, off-box PDP call on the hot path adds a meaningful, avoidable amount of latency to every request; a local sidecar call does not. The exact cost depends on the deployment and isn't asserted here as a measured figure. Central policy authority, distributed enforcement — not central service, distributed clients.
 
 ## Rule of thumb
 

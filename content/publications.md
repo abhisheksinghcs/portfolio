@@ -53,6 +53,6 @@
 ## Related content on this site
 
 - [The AI Control-Plane Pattern](/content/pattern.md)
-- [AI Control-Plane Architecture](/content/control-plane.md)
+- [Microsoft-Native Control-Plane Enforcement](/content/control-plane.md)
 - [Agent Security & Governance Framework](/content/agent-security.md)
 - [GenAI Observability Model](/content/observability.md)

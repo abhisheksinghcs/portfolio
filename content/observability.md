@@ -4,7 +4,7 @@
 **Owner:** Principal Security Architect, AI Platform
 **Reviewers:** AI Platform Eng, Security Engineering, SOC / Detection Engineering, Data Governance
 **Target rollout:** Phased — normalized event schema and correlation IDs first, policy-drift detection second
-**Related RFCs:** [RFC-014 AI Control Plane](/content/control-plane.md), [RFC-015 Agent Security](/content/agent-security.md)
+**Related RFCs:** [RFC-014 Microsoft-Native Control-Plane Enforcement](/content/control-plane.md), [RFC-015 Agent Security](/content/agent-security.md)
 
 > **Prerequisite reading:** the [Control-Plane Pattern overview](/content/pattern.md). This RFC defines the evidence model produced by the six enforcement boundaries described there.
 
@@ -243,7 +243,7 @@ This is a progression, not a rewrite: the published series remains the correct s
 ## Where to go next
 
 - [The AI Control-Plane Pattern](/content/pattern.md) — the six-boundary model this RFC's schema is built around.
-- [RFC-014 AI Control Plane](/content/control-plane.md) — the edge gateway and origin that emit boundary 1–3 events.
+- [RFC-014 Microsoft-Native Control-Plane Enforcement](/content/control-plane.md) — the API Management gateway, AI mediation service, and retrieval/model boundaries that emit boundary 1–3 events.
 - [RFC-015 Agent Security](/content/agent-security.md) — tool authorization and delegation chains that emit boundary 4–6 events.
 - [Securing GenAI Workloads in Azure: A Complete Guide to Monitoring and Threat Protection](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/securing-genai-workloads-in-azure-a-complete-guide-to-monitoring-and-threat-prot/4463145) — the published pipeline this RFC's schema feeds, co-authored with Umesh Nagdev.
 

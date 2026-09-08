@@ -4,7 +4,7 @@
 
 ## Architecture Modules
 
-* **[Sanitized AI Control-Plane Architecture](./content/control-plane.md)** — Enterprise gateway policies, zero-trust identity propagation, and multi-tenant RAG isolation.
+* **[Microsoft-Native Control-Plane Enforcement](./content/control-plane.md)** — Boundaries 1-3 of the control-plane pattern on Microsoft-native services: Entra ID and API Management for admission, Azure AI Search for retrieval, Azure OpenAI with managed identity for model invocation.
 * **[Agent Security & Governance Framework](./content/agent-security.md)** — Runtime interception, tool-use authorization gates, and NIST AI RMF compliance mapping.
 * **[GenAI Observability Model](./content/observability.md)** — Telemetry pipelines, token tracking, and behavioral threat detection integrated with SIEM.
 * **[Publications & Thought Leadership](./content/publications.md)** — Whitepapers on securing generative AI, threat vectors, and defense strategies.
