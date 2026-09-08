@@ -41,12 +41,12 @@ Not everything belongs in one place. The control plane holds authority; the exec
 | Agent / model / tool / MCP registry | Control | Single source of truth for what exists, who owns it, and its trust class. Microsoft Agent 365 is a concrete example of this registry across platforms. |
 | Policy definitions and versions | Control | Signed OPA bundles, canary + rollback, per-tenant thresholds. |
 | Identity blueprints and lifecycle | Control | Entra Agent ID (or equivalent) with delegation chain and sponsor. |
-| Risk classification and exceptions | Control | Governance-owned. App teams do not self-classify. |
+| Risk classification and exceptions | Control | Governance-owned. App teams do not self-classify. Informed by evidence such as pre-deployment adversarial testing, not assigned by default. |
 | Policy decision point (PDP) | Logically central, physically replicated | OPA sidecar over UDS in each pod, so the decision call stays local to the request path rather than a remote network hop. |
 | Edge / API gateway | Execution, distributed by region | Envoy at PoP or Azure APIM. Handles TLS, OIDC verify, cheap classifier gates. |
 | AI mediation service | Execution, per environment | Applies policy obligations (redact, route, restrict), calls retrieval and models under a workload or agent identity, forwards decision evidence. It is a PEP, not the control plane itself. |
-| Tenant-isolated retrieval | Execution, at the vector store | Namespace per tenant. Tenant resolved from the token, not the request body. |
-| Tool authorization | Execution, at gateway AND at tool | The gateway check does not replace the tool's own OAuth resource-server check. |
+| Tenant-isolated retrieval | Execution, at the vector store | Isolation tier (shared index with filters, dedicated index, or dedicated service) chosen by risk tier. Tenant resolved from the token, not the request body. |
+| Tool authorization | Execution, at the tool-authorization step AND at the tool | The tool-authorization check does not replace the tool's own OAuth resource-server check. |
 | Business systems | Execution, unchanged | The CRM, ERP, or database still runs its own row-level authorization. |
 | Telemetry collection | Execution, correlated centrally | Local OpenTelemetry collectors, tamper-evident audit sink. |
 
@@ -93,6 +93,6 @@ The RFCs on this site extend that work into three areas:
 
 ## Where to go next
 
-- [Control-Plane RFC](/content/control-plane.md) — edge gateway, OIDC-to-ephemeral-credential exchange, RAG namespace isolation, ZDR mandate. Boundaries 1–3.
-- [Agent Security RFC](/content/agent-security.md) — tool authorization, argument schemas, delegation chains, human-in-the-loop. Boundaries 4–6.
-- [Observability RFC](/content/observability.md) — trace schema, decision evidence, drift detection, audit integrity.
+- [Control-Plane RFC](/content/control-plane.md) — Entra ID and API Management for admission, Azure AI Search retrieval-isolation choices, Azure OpenAI with managed identity, Entra Agent ID. Boundaries 1–3.
+- [Agent Security RFC](/content/agent-security.md) — per-agent tool access grants, resource-side RBAC, human-approved side effects, pre-deployment red teaming. Boundaries 4–6.
+- [Observability RFC](/content/observability.md) — trace schema, decision evidence, drift detection, audit integrity, and mapping to native telemetry (Defender XDR, Agent 365 observability).
