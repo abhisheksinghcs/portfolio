@@ -54,5 +54,5 @@
 
 - [The AI Control-Plane Pattern](/content/pattern.md)
 - [Microsoft-Native Control-Plane Enforcement](/content/control-plane.md)
-- [Agent Security & Governance Framework](/content/agent-security.md)
+- [Microsoft-Native Enforcement for Agent Tool Use and Side Effects](/content/agent-security.md)
 - [GenAI Observability Model](/content/observability.md)

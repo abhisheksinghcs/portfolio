@@ -201,7 +201,7 @@ A single request can carry up to three distinct identities, and collapsing them 
 
 - **User** — the human (or upstream service) that originated the request.
 - **Workload** — the application or pipeline making the call on the user's behalf.
-- **Agent** — the specific agent identity (RFC-015's Agent ID) that is acting, which may differ from the workload if a supervisor agent has delegated to a subordinate.
+- **Agent** — the specific agent identity (Microsoft Entra Agent ID, established in RFC-014) that is acting, which may differ from the workload if a supervisor agent has delegated to a subordinate.
 
 The `principal.delegation_chain` field captures the ordered path — user → workload → supervisor agent → subordinate agent — so an investigator reconstructing "who did this" gets the full chain in one query, not a reconstruction exercise across three log sources.
 

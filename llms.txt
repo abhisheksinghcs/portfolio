@@ -31,7 +31,7 @@ Abhi Singh is a Principal Global Black Belt for AI Security at Microsoft (Oct 20
 ## Core Work
 
 - [Microsoft-Native Control-Plane Enforcement](/content/control-plane.md): Reference architecture implementing boundaries 1-3 of the control-plane pattern (agent admission, retrieval authorization, model invocation) on Microsoft-native services — Entra ID, API Management, Azure AI Search, Azure OpenAI, Azure AI Content Safety.
-- [Agent Security & Governance Framework](/content/agent-security.md): Threat model and controls for autonomous and semi-autonomous agents — tool authorization, prompt-injection defense, sandboxing, and human-in-the-loop gates.
+- [Microsoft-Native Enforcement for Agent Tool Use and Side Effects](/content/agent-security.md): Reference architecture implementing boundaries 4-6 of the control-plane pattern (tool proposal, resource-side authorization, human-approved side effects) on Microsoft-native services — Entra ID Governance access packages, Azure RBAC, Defender for Cloud CIEM, Microsoft Purview DLP, Microsoft Foundry AI Red Teaming Agent.
 - [GenAI Observability Model](/content/observability.md): Normalized event schema, identity correlation (user/workload/agent), and policy-drift detection across all six control-plane enforcement boundaries. Extends the published Azure GenAI monitoring series (co-authored with Umesh Nagdev) with the architectural layer — schema and correlation — that pipeline assumes.
 
 ## Writing
