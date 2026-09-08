@@ -77,6 +77,8 @@ This RFC does not claim legal or regulatory compliance with any specific framewo
 
 Governance authority (registry, policy definitions, risk classification) is centralized, per the pattern overview. Enforcement is distributed across four points: the edge, the gateway, the AI mediation service, and the retrieval and model backends.
 
+This RFC's AI mediation service is this pattern's application enforcement tier — a logical responsibility, not a required microservice or network hop. See [Agent Runtime, Agentic Harness, and Application Enforcement](/content/agent-runtime-and-enforcement.md) for how that responsibility relates to an agentic harness and where it can live. Boundaries 1–3 can be enforced across API Management, application code or an agent runtime, the retrieval service, and the approved model route — not necessarily as four separate deployed hops.
+
 **ASCII (authoritative):**
 
 ```

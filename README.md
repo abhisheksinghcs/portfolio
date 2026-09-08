@@ -5,6 +5,7 @@
 ## Architecture Modules
 
 * **[Microsoft-Native Control-Plane Enforcement](./content/control-plane.md)** — Boundaries 1-3 of the control-plane pattern on Microsoft-native services: Entra ID and API Management for admission, Azure AI Search for retrieval, Azure OpenAI with managed identity for model invocation.
+* **[Agent Runtime, Agentic Harness, and Application Enforcement](./content/agent-runtime-and-enforcement.md)** — Standalone explainer: where the AI gateway, agent runtime, agentic harness, and application enforcement tier each run, and how the identity model works.
 * **[Microsoft-Native Enforcement for Agent Tool Use and Side Effects](./content/agent-security.md)** — Boundaries 4-6 of the control-plane pattern: per-agent tool access grants, resource-side RBAC, human-approved side effects, and pre-deployment red teaming.
 * **[GenAI Observability Model](./content/observability.md)** — Telemetry pipelines, token tracking, and behavioral threat detection integrated with SIEM.
 * **[Publications & Thought Leadership](./content/publications.md)** — Whitepapers on securing generative AI, threat vectors, and defense strategies.

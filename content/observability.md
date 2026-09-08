@@ -183,6 +183,8 @@ class ObservabilityEvent:
         self.sink_signature = hmac.new(key, payload.encode(), hashlib.sha256).hexdigest()
 ```
 
+The fields above already separate the concepts that matter for an investigation: `boundary` identifies which policy enforcement point emitted the event; `policy_version` reflects what the policy decision point decided; `principal.user_id`, `principal.workload_id`, and `principal.agent_id` separate user, workload, and agent identity rather than collapsing them into one; `tool_provenance`'s target resource (boundary 4/5 events) is the target capability; and `decision` plus `decision_reason` is the outcome. Which component emitted the event — API Management, an application enforcement tier, a tool broker, or the resource itself — isn't a separate field; it's implied by `boundary` and by wherever the event actually originated. See [Agent Runtime, Agentic Harness, and Application Enforcement](/content/agent-runtime-and-enforcement.md) for how those components relate to one another.
+
 ### 4.2 Where this schema meets Microsoft-native telemetry today
 
 This schema doesn't replace Microsoft's own AI telemetry surfaces. It's the shape that lets the enforcement points in RFC-014 and RFC-015 feed evidence into them consistently. Three of those surfaces are worth naming specifically, because each covers a different slice of the problem and none of them alone is the full picture:
@@ -275,6 +277,7 @@ This is a progression, not a rewrite: the published series remains the correct s
 - [The AI Control-Plane Pattern](/content/pattern.md) — the six-boundary model this RFC's schema is built around.
 - [RFC-014 Microsoft-Native Control-Plane Enforcement](/content/control-plane.md) — the API Management gateway, AI mediation service, and retrieval/model boundaries that emit boundary 1–3 events.
 - [RFC-015 Agent Security](/content/agent-security.md) — tool authorization and delegation chains that emit boundary 4–6 events.
+- [Agent Runtime, Agentic Harness, and Application Enforcement](/content/agent-runtime-and-enforcement.md) — how the components that emit these events relate to one another.
 - [Part 1: Securing GenAI Workloads in Azure](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/securing-genai-workloads-in-azure-a-complete-guide-to-monitoring-and-threat-prot/4463145), [Part 2: defensive programming for Azure OpenAI](https://techcommunity.microsoft.com/blog/MicrosoftDefenderCloudBlog/part-2-building-security-observability-into-your-code---defensive-programming-fo/4464221), and [Part 3: Sentinel analytics and correlation](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/part-3-unified-security-intelligence---orchestrating-genai-threat-detection-with/4477556) — the published pipeline this RFC's schema feeds, co-authored with Umesh Nagdev.
 - [AIAgentsInfo table in the advanced hunting schema](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-aiagentsinfo-table) — the agent registry and posture table referenced in §4.2.
 - [Agent 365 observability data model and concepts](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability-concepts) — the OpenTelemetry span model referenced in §4.2.

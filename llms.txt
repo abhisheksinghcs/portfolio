@@ -27,6 +27,7 @@ Abhi Singh is a Principal Global Black Belt for AI Security at Microsoft (Oct 20
 ## Start here
 
 - [The AI Control-Plane Pattern](/content/pattern.md): High-level overview of the reference pattern the RFCs below implement. Two-plane split (control vs execution), six enforcement boundaries, and the non-goals. Read this first if you want the shape before the details.
+- [Agent Runtime, Agentic Harness, and Application Enforcement](/content/agent-runtime-and-enforcement.md): Standalone explainer resolving how an AI gateway, an agent runtime, an agentic harness, and the application enforcement tier relate — and how Entra Agent ID, managed identity, and resource-side authorization differ. Not an RFC.
 
 ## Core Work
 

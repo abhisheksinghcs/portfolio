@@ -108,7 +108,7 @@ flowchart TB
 
 ## 5. Boundary 4: Tool proposal
 
-A tool proposal is the agent's stated intent to call a specific tool with specific arguments. The boundary 4 PEP checks whether the specific agent identity making the call — not the application hosting it — has been granted access to that specific tool.
+A tool proposal is the agent's stated intent to call a specific tool with specific arguments. The boundary 4 PEP checks whether the specific agent identity making the call — not the application hosting it — has been granted access to that specific tool. That check itself can be implemented in the agentic harness, framework middleware, a dedicated tool broker, or the target resource's own authorization layer — see [Agent Runtime, Agentic Harness, and Application Enforcement](/content/agent-runtime-and-enforcement.md) for how those pieces relate.
 
 The grant itself lives in Microsoft Entra ID Governance. Shared baseline permissions can be declared on the agent identity blueprint so every instance created from it inherits them, but Azure RBAC is an exception: blueprints can't hold Azure RBAC roles, so any tool that requires one has that role assigned directly to the individual agent identity. Tool-specific OAuth permissions and Entra roles can also be requested through an access package: the agent identity itself can request it, or its sponsor or owner can request it on the agent's behalf, and access can be time-bound rather than persistent.
 
