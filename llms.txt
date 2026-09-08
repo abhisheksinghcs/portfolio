@@ -10,7 +10,7 @@ This site follows the [llms.txt](https://llmstxt.org) convention. Human readers 
 
 ## Professional Profile
 
-Abhi Singh is a Principal Global Black Belt for AI Security at Microsoft (Oct 2022–present), advising Fortune 10 and highly regulated enterprises on securing generative AI, Copilots, and agentic AI systems at production scale. 25 years of experience spanning Microsoft, AWS, Deloitte, and KPMG, plus CISO-level roles at Purdue Pharma and Wyndham Worldwide.
+Abhi Singh is a Principal Global Black Belt for AI Security at Microsoft (Oct 2022–present), advising Fortune 10 and highly regulated enterprises on securing generative AI, Copilots, and agentic AI systems at production scale. 25 years across Big Four cyber risk advisory and enterprise practitioner roles: Microsoft, AWS, Deloitte, KPMG, and leadership positions at Purdue Pharma and Wyndham Worldwide.
 
 **Core competencies:** GenAI and agentic AI security · AI threat modeling (prompt injection, data poisoning, jailbreak, data exfiltration) · zero-data-retention (ZDR) and edge-first control-plane architecture · agent identity and governance (approval workflows, lifecycle management, policy enforcement) · secure RAG architecture · Zero Trust and defense-in-depth · regulatory alignment (NIST AI RMF, ISO/IEC 42001, PCI DSS, SOX, FFIEC) · cloud security (Azure, AWS) · Kubernetes and container security.
 
