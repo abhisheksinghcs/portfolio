@@ -14,16 +14,18 @@
 
 ## 1. Context: from published guidance to a portfolio pattern
 
-Umesh Nagdev and I published a three-part series on the Microsoft Defender for Cloud Blog, [Securing GenAI Workloads in Azure: A Complete Guide to Monitoring and Threat Protection](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/securing-genai-workloads-in-azure-a-complete-guide-to-monitoring-and-threat-prot/4463145), covering how to collect and operationalize security signals from Azure GenAI workloads — application telemetry, Azure OpenAI diagnostic logs, Defender for Cloud, and Microsoft Sentinel, wired through Application Insights and Log Analytics into detection engineering, investigation, and incident response.
+Umesh Nagdev and I have published three parts so far of a series on the Microsoft Defender for Cloud Blog, *Securing GenAI Workloads in Azure: A Complete Guide to Monitoring and Threat Protection*: [Part 1: the security blind spot](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/securing-genai-workloads-in-azure-a-complete-guide-to-monitoring-and-threat-prot/4463145), [Part 2: defensive programming for Azure OpenAI](https://techcommunity.microsoft.com/blog/MicrosoftDefenderCloudBlog/part-2-building-security-observability-into-your-code---defensive-programming-fo/4464221), and [Part 3: Sentinel analytics and correlation](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/part-3-unified-security-intelligence---orchestrating-genai-threat-detection-with/4477556). Together they cover how to collect and operationalize security signals from Azure GenAI workloads: structured application logging, the `user_security_context` parameter on Azure OpenAI calls, Defender for Cloud AI Threat Protection, and Microsoft Sentinel analytics rules, wired through Application Insights and Log Analytics into detection engineering, investigation, and incident response.
 
 That series answers *how to collect signals*. It does not answer the architectural question behind them: *which* signals, in *what shape*, carrying *whose* identity, with *what* evidence of why a decision was made. Two SOC analysts investigating the same incident, working from two enforcement points that emit differently-shaped events, end up reconstructing the same story from scratch every time. This RFC defines the normalized schema that the enforcement points in [RFC-014](/content/control-plane.md) and [RFC-015](/content/agent-security.md) must produce so that the pipeline described in the published series has consistent evidence to consume — not a replacement for that pipeline, its missing input contract.
 
 ## 2. What the published series already covers — not repeated here
 
 - Application telemetry instrumentation for GenAI applications.
+- Structured JSON security logging, prompt hashing, and the `user_security_context` parameter on Azure OpenAI calls (Part 2).
 - Azure OpenAI diagnostic settings and log categories.
 - Defender for Cloud's AI Security Posture Management and Threat Protection for AI.
 - Microsoft Sentinel analytics rules and workbooks for GenAI threats.
+- Specific Sentinel detection rules for prompt injection, content-safety violations, rate-limit abuse, and cross-signal correlation with sign-in and threat-intelligence data (Part 3).
 - Application Insights instrumentation patterns.
 - Log Analytics workspace design for AI workloads.
 - Detection engineering, investigation playbooks, and incident-response process for GenAI incidents.
@@ -107,9 +109,9 @@ flowchart TB
 | `policy_version` | string | Signed policy bundle version that produced the decision — required to distinguish "the policy changed" from "the input changed" during an investigation. |
 | `decision_reason` | string (enum-like) | Short machine-readable reason code, e.g. `classifier_score_high`, `tenant_filter_denied`, `tool_not_allowlisted`. Never free text containing prompt content. |
 | `principal` | object | `{user_id, workload_id, agent_id, delegation_chain}` — see §5. |
-| `tenant_id` | string | Resolved from the token, never from the request body (per RFC-014 §3.2). |
-| `content_hash` | string (SHA-256) | Hash of the content evaluated, never the content itself — consistent with the ZDR mandate in RFC-014 §1.3. |
-| `retrieval_provenance` | array | For boundary 2 events: source document IDs and a `content_source` provenance tag (RFC-014 §3.2). |
+| `tenant_id` | string | Resolved from the token, never from the request body (per RFC-014 §2's tenant isolation requirement). |
+| `content_hash` | string (SHA-256) | Hash of the content evaluated, never the content itself — consistent with RFC-014 §2's Content-Minimizing Telemetry Requirement. |
+| `retrieval_provenance` | array | For boundary 2 events: source document IDs and a `content_source` provenance tag (RFC-014 §6). |
 | `tool_provenance` | object | For boundary 4/5 events: tool name, argument hash, target resource. |
 | `latency_ms` | float | Time spent at this boundary — used for both performance and anomaly detection (a boundary suddenly taking 5x longer can indicate a downstream compromise). |
 | `timestamp` | ISO 8601 | Event emission time. |
@@ -181,6 +183,18 @@ class ObservabilityEvent:
         self.sink_signature = hmac.new(key, payload.encode(), hashlib.sha256).hexdigest()
 ```
 
+### 4.2 Where this schema meets Microsoft-native telemetry today
+
+This schema doesn't replace Microsoft's own AI telemetry surfaces. It's the shape that lets the enforcement points in RFC-014 and RFC-015 feed evidence into them consistently. Three of those surfaces are worth naming specifically, because each covers a different slice of the problem and none of them alone is the full picture:
+
+| Native surface | What it actually captures | How it relates to this schema |
+|---|---|---|
+| Defender XDR `AIAgentsInfo` / `AgentsInfo` table (advanced hunting) | Agent registry and configuration posture — owner, instructions, authentication type, configured tools, MCP servers — refreshed as a snapshot, not an event per decision. Populated from Microsoft Agent 365 (`RegistrySource == "A365"`) and Power Platform. | A posture signal, not a decision signal. `EntraBlueprintId` on this table is the same Entra Agent ID blueprint principal that RFC-014 §5 and this schema's `principal.agent_id` are built around. An investigator can join a boundary event to this table to check whether the acting agent has instructions configured, has an MCP tool attached, or is missing authentication, at the time of the incident. |
+| Microsoft Agent 365 observability (OpenTelemetry spans) | Per-run telemetry for agents integrated with Agent 365 — a span tree per conversation, keyed by `gen_ai.conversation.id` and `gen_ai.agent.id`, with a required `invoke_agent` span at the root. | The closest of the three to this RFC's own model. Where an agent already emits Agent 365 telemetry, its `gen_ai.conversation.id` and `gen_ai.agent.id` should be the same values carried in this schema's `correlation_id` and `principal.agent_id` — not a second, disconnected identifier space for the same run. |
+| Azure OpenAI `user_security_context` | A request-level enrichment parameter (`end_user_id`, `source_ip`, `application_name`) passed on the Azure OpenAI call itself, which Defender for Cloud AI Threat Protection surfaces directly in its alerts. | Narrower than this schema's `principal` object, and specific to Azure OpenAI. Boundary 3 events should populate this parameter from the same identity that populates `principal` here, so a Defender alert and this RFC's own evidence trail already agree on who the caller was, without a separate correlation step. |
+
+Two caveats worth stating plainly rather than glossing over: the `AIAgentsInfo` table is being renamed to `AgentsInfo` and is scheduled to stop resolving under its old name on July 1, 2026, so a query written against one name today needs a migration plan; and Agent 365 observability's own documentation notes that a `200 OK` from its ingestion endpoint is not proof a span was actually accepted — the per-span `results` field has to be checked, since a request can be accepted and every span in it still rejected (for example, if no user in the tenant has an eligible license assigned). Anything built against either surface should account for both.
+
 ## 5. Identity correlation: user, workload, and agent
 
 A single request can carry up to three distinct identities, and collapsing them into one field is the single most common cause of failed attribution during an investigation:
@@ -195,7 +209,7 @@ The `principal.delegation_chain` field captures the ordered path — user → wo
 
 Two signals matter beyond individual request decisions:
 
-- **Classifier score distribution over time.** The three-band classifier in RFC-014 §2.3 should have its score distribution tracked per policy version, per tenant. A distribution shift — more requests landing in the review band this week than last, for the same policy version — indicates either an input-population change (new attack pattern, new legitimate use case) or classifier degradation, and both are worth paging on.
+- **Classifier score distribution over time.** The three-band classifier in RFC-014 §9 should have its score distribution tracked per policy version, per tenant. A distribution shift — more requests landing in the review band this week than last, for the same policy version — indicates either an input-population change (new attack pattern, new legitimate use case) or classifier degradation, and both are worth paging on.
 - **Decision-outcome drift.** If the same policy version starts producing a different allow/review/block ratio for a statistically similar input population, that's drift in the policy engine or its dependencies (a stale threat-intel feed, a misconfigured bundle), not in the traffic. Comparing `policy_version` against `decision` distribution over a rolling window is how this gets caught before it becomes an incident rather than after.
 
 Neither signal is visible from individual request logs. Both require the normalized schema in §4, aggregated over `policy_version` and `boundary`, which is exactly what the published series' Sentinel and Log Analytics pipeline is built to aggregate — once it has a consistent field to aggregate on.
@@ -205,11 +219,12 @@ Neither signal is visible from individual request logs. Both require the normali
 This is deliberately short: the pipeline is the one described in the published series. This RFC's job is to define what lands in it.
 
 - **Application Insights** — each `ObservabilityEvent` is emitted as a custom event, with `correlation_id` set as the Application Insights operation ID so the existing distributed-tracing view stitches boundaries together automatically.
+- **Azure OpenAI `user_security_context`** — boundary 3's call to Azure OpenAI (API version `2024-10-01-preview` or later) carries `user_security_context: {end_user_id, source_ip, application_name}` in `extra_body`, populated from the same `principal` this schema already carries. That's what makes a Defender for Cloud AI Threat Protection alert show the actual caller instead of just the resource name (Part 2 of the published series).
 - **Log Analytics** — events land in a custom table (e.g. `AIObservabilityEvents_CL`) with the schema in §4.1, partitioned by `tenant_id` and `boundary`.
-- **Microsoft Sentinel** — analytics rules query the normalized table directly. A rule that would have needed six different queries against six differently-shaped logs becomes one query against one schema:
+- **Microsoft Sentinel** — analytics rules query the normalized table directly instead of the six differently-shaped, per-boundary logs a non-normalized system would produce. Illustrative examples, not literal production queries:
 
 ```kql
-// Illustrative — schema names match §4.1, not a literal production query.
+// Policy-drift signal: review-rate shift for the same policy version.
 AIObservabilityEvents_CL
 | where TimeGenerated > ago(7d)
 | summarize ReviewRate = countif(decision_s == "review") * 1.0 / count()
@@ -217,11 +232,26 @@ AIObservabilityEvents_CL
 | where ReviewRate > 0.15
 ```
 
-- **Defender for Cloud** — Threat Protection for AI alerts are correlated against this schema by `correlation_id`, so a Defender alert and the control-plane's own decision trail resolve to the same incident timeline instead of two separate ones.
+```kql
+// Correlating this schema's own decisions with a Defender for Cloud AI alert on
+// the same principal — the pattern used across Part 3 of the published series.
+AIObservabilityEvents_CL
+| where TimeGenerated > ago(1h) and decision_s in ("block", "review")
+| join kind=inner (
+    AlertEvidence
+    | where DetectionSource == "Microsoft Defender for AI Services"
+    | where TimeGenerated > ago(1h)
+) on $left.principal_agent_id_s == $right.AccountObjectId
+| project TimeGenerated, correlation_id_g, boundary_d, decision_s, Title
+```
+
+- **Defender for Cloud** — Threat Protection for AI alerts (`DetectionSource == "Microsoft Defender for AI Services"` in the `AlertEvidence` table) correlate against this schema by `correlation_id` or by principal, so a Defender alert and the control-plane's own decision trail resolve to the same incident timeline instead of two separate ones.
+- **Defender XDR `AIAgentsInfo` / `AgentsInfo`** — an investigator can join a boundary event's `principal.agent_id` against this table's `EntraBlueprintId` or `AIAgentId` to pull the acting agent's current registry posture (owner, instructions configured or not, authorized tools) at investigation time, not just at the moment the event was emitted (§4.2).
+- **Microsoft Agent 365 observability** — for agents that already emit Agent 365 spans, this schema's `correlation_id` and `principal.agent_id` should be set to the same values as `gen_ai.conversation.id` and `gen_ai.agent.id`, so the two telemetry paths describe the same run instead of two that have to be reconciled after the fact.
 
 ## 8. Evidence integrity and privacy controls
 
-The same two disciplines that govern the audit sink in RFC-014 §1.3 and §2 apply here without exception:
+The same two disciplines that govern the audit sink in RFC-014's Content-Minimizing Telemetry Requirement (§2) and decision-evidence service mapping (§3) apply here without exception:
 
 - **Hash, never content.** `content_hash` is a SHA-256 digest. No field in this schema holds a raw prompt, completion, or retrieved document. This is a ZDR requirement, not a storage-cost optimization.
 - **HMAC-chained, append-only.** Each event's `sink_signature` covers the previous event's signature (§4.1's reference implementation), so deleting or reordering an event in the sink is detectable, not just theoretically prevented.
@@ -245,5 +275,7 @@ This is a progression, not a rewrite: the published series remains the correct s
 - [The AI Control-Plane Pattern](/content/pattern.md) — the six-boundary model this RFC's schema is built around.
 - [RFC-014 Microsoft-Native Control-Plane Enforcement](/content/control-plane.md) — the API Management gateway, AI mediation service, and retrieval/model boundaries that emit boundary 1–3 events.
 - [RFC-015 Agent Security](/content/agent-security.md) — tool authorization and delegation chains that emit boundary 4–6 events.
-- [Securing GenAI Workloads in Azure: A Complete Guide to Monitoring and Threat Protection](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/securing-genai-workloads-in-azure-a-complete-guide-to-monitoring-and-threat-prot/4463145) — the published pipeline this RFC's schema feeds, co-authored with Umesh Nagdev.
+- [Part 1: Securing GenAI Workloads in Azure](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/securing-genai-workloads-in-azure-a-complete-guide-to-monitoring-and-threat-prot/4463145), [Part 2: defensive programming for Azure OpenAI](https://techcommunity.microsoft.com/blog/MicrosoftDefenderCloudBlog/part-2-building-security-observability-into-your-code---defensive-programming-fo/4464221), and [Part 3: Sentinel analytics and correlation](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/part-3-unified-security-intelligence---orchestrating-genai-threat-detection-with/4477556) — the published pipeline this RFC's schema feeds, co-authored with Umesh Nagdev.
+- [AIAgentsInfo table in the advanced hunting schema](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-aiagentsinfo-table) — the agent registry and posture table referenced in §4.2.
+- [Agent 365 observability data model and concepts](https://learn.microsoft.com/en-us/microsoft-agent-365/developer/observability-concepts) — the OpenTelemetry span model referenced in §4.2.
 
