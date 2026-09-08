@@ -34,6 +34,7 @@ The design goal for boundaries 1–3 is to place enforcement where each of these
 | Area | Requirement | Status |
 |---|---|---|
 | Identity | Every request reaching boundary 1 carries a validated Microsoft Entra ID token before any policy decision is made. | Design assumption |
+| Agent identity | Where the caller is an agent, a distinct Microsoft Entra Agent ID identity represents it, separate from the identity of whatever workload happens to host it. | Requirement |
 | Latency | Enforcement adds sub-second overhead to a request. No specific millisecond figure is claimed here. | Illustrative goal, requires validation against real traffic |
 | Data minimization | See "Content-Minimizing Telemetry Requirement" below. | Design assumption |
 | Regional deployment | Model invocation is constrained to an approved set of regions and deployments per tenant and data class. | Design assumption |
@@ -60,7 +61,9 @@ This RFC does not claim legal or regulatory compliance with any specific framewo
 | Internet edge | Azure Front Door, Web Application Firewall, DDoS Protection | Native | Conventional web and network threats. Not a semantic security boundary. |
 | Agent admission (boundary 1) | Azure API Management | Native | A policy enforcement point. Not the entire control plane. |
 | Token validation | Microsoft Entra ID, APIM `validate-jwt` | Native | |
-| Workload identity | Microsoft Entra ID managed identity, workload identity federation | Native | Preferred over an application-held model-provider key. |
+| Agent identity (the logical agent) | Microsoft Entra Agent ID — agent identity blueprint, blueprint principal, per-instance agent identity | Native | Represents the agent itself, distinct from the workload hosting it. See §5. |
+| Agent registry and cross-platform governance | Microsoft Agent 365 | Native | Registry, access control, and lifecycle surface for agents across Foundry, Copilot Studio, and other platforms. Detailed governance actions belong to RFC-015. |
+| Workload identity (hosting component) | Microsoft Entra ID managed identity, workload identity federation | Native | Authenticates the agent identity blueprint to Entra ID. Preferred over an application-held model-provider key. Does not itself represent the agent. |
 | Multi-provider credential handling | Custom credential broker | Custom | Only for providers that don't support Entra-based auth. See §7. |
 | Models | Azure AI Foundry, Azure OpenAI, approved deployments | Native | |
 | Prompt and content signals | Azure AI Content Safety, Prompt Shields | Native | A probabilistic risk signal, not an authorization authority. |
@@ -79,8 +82,8 @@ Governance authority (registry, policy definitions, risk classification) is cent
 ```
                          ┌───────────────────────────────────────┐
                          │           Governance authority          │
-                         │  registry · policy definitions ·        │
-                         │  risk classification (see pattern.md)   │
+                         │  Agent 365 registry · Entra Agent ID     │
+                         │  blueprints · policy · risk classification│
                          └───────────────┬─────────────────────────┘
                                          │ signed policy / config
                        ┌─────────────────┼─────────────────┬───────────────┐
@@ -109,7 +112,7 @@ Governance authority (registry, policy definitions, risk classification) is cent
 
 ```mermaid
 flowchart TB
-    GOV["Governance authority<br/>registry, policy, risk classification"]
+    GOV["Governance authority: Agent 365 registry,<br/>Entra Agent ID blueprints, policy, risk classification"]
     FD["Front Door + WAF<br/>native, conventional threats only"]
     APIM["API Management<br/>boundary 1, agent admission"]
     MED["AI mediation service<br/>applies obligations, custom component"]
@@ -134,9 +137,38 @@ flowchart TB
 
 ## 5. Boundary 1: Agent admission
 
-Azure API Management validates the Microsoft Entra ID token before anything else happens: signature, issuer, audience, expiry, and required claims (`validate-jwt`). It applies a request-size limit, a correlation identifier, and a rate limit or quota. This is the gateway-level admission decision.
+Three identity concepts show up at this boundary, and treating them as interchangeable is a design mistake this RFC deliberately avoids:
 
-API Management is a policy enforcement point. It is not the entire AI control plane, and not every admission decision belongs there. Some decisions need state or logic that doesn't fit cleanly into a gateway policy expression — for example, checking a tenant's current agent-registry status, which isn't something the gateway itself tracks. Those decisions happen in the AI mediation service, downstream of the gateway. A registry that only lists approved agents, with no PEP actually checking against it on the request path, is inventory. It isn't enforcement.
+- **A user identity** represents the human on whose behalf an interactive agent may act.
+- **A managed identity** represents the Azure workload or hosting component running the agent's code — a container app, a function, a VM. It authenticates that piece of infrastructure to Azure. It does not represent the agent.
+- **A Microsoft Entra Agent ID agent identity** represents the logical AI agent itself: a distinct, attributable principal, independent of whatever infrastructure happens to host it today. Entra Agent ID is a first-class part of this architecture, not something a managed identity substitutes for. A managed identity is scoped to the host; an agent identity is scoped to the agent.
+
+| Concept | Role |
+|---|---|
+| Agent identity blueprint | The template application object an agent identity is created from. Holds the credential used to mint tokens, typically a federated identity credential trusting a managed identity rather than a stored secret. Conditional Access and permission grants applied at the blueprint level are inherited by every agent instance created from it. |
+| Individual agent identity | A service principal created from a blueprint, representing one specific agent instance. It can't hold its own credentials; it relies on the blueprint to acquire tokens for it. It's the principal that RBAC role assignments and per-agent policy decisions should attach to. |
+| Agent sponsor | The human (or, for an agent identity, a human or group) accountable for that agent's purpose and lifecycle. Required at creation. If a sponsor leaves the organization, sponsorship transfers to their manager rather than lapsing. |
+| Application-only agent access | The agent acts under its own authority, using a client-credentials flow. The agent identity itself is the token subject. |
+| Delegated user-and-agent access | The agent acts on behalf of a signed-in user, using an on-behalf-of flow. The user is the token subject; the agent identity is the actor. |
+| Workload identity federation | How the blueprint proves itself to Microsoft Entra ID without a stored secret, by trusting a credential from the hosting workload, typically a managed identity, instead of a client secret. |
+| Managed identity (hosting component) | Secures the Azure-hosted workload that runs the agent's code and authenticates the blueprint to Entra ID. It does not represent the agent and, where a distinct agent identity exists, should not be the principal downstream RBAC roles are granted to. |
+
+Azure API Management validates the incoming token (`validate-jwt`) the same way regardless of which of these subjects it represents: an agent identity token from the application-only flow, a delegated token where the agent identity is the actor and a signed-in user is the subject, or a plain user token for non-agentic traffic. The gateway's validation step doesn't change. What differs is which claims the AI mediation service evaluates afterward, and that's where the actual admission decision for agents gets made.
+
+For agent admission specifically, that decision considers:
+
+- **User or calling workload** — who or what is presenting the token.
+- **Agent identity** — the specific Entra Agent ID identity making the call, when the caller is an agent.
+- **Agent identity blueprint** — the template the agent identity was created from, since blueprint-level Conditional Access and permission grants apply to every instance created from it.
+- **Autonomous or delegated interaction mode** — application-only (the agent identity is the token subject) or delegated (a signed-in user is the subject, the agent identity is the actor). Sign-in and audit logs distinguish these explicitly.
+- **Tenant** — resolved from validated claims, never the request body.
+- **Purpose** — the declared reason for the call, the same requirement as for non-agentic traffic.
+- **Requested capability** — what the agent is asking to do this request, for example whether retrieval or tool use is in scope.
+- **Agent lifecycle and risk state** — whether the calling agent identity is active, flagged, or has an open governance action against it. This state is owned by Microsoft Entra ID and Microsoft Agent 365, not reimplemented here; boundary 1 only needs the current answer. How that state gets remediated belongs to [RFC-015 Agent Security](/content/agent-security.md).
+
+Do not assume every agent runtime or hosting platform already supports every part of this model. Support for Entra Agent ID capabilities varies by platform and by agent type today, and needs to be verified against current Microsoft Entra and Microsoft Foundry documentation rather than assumed.
+
+API Management remains a policy enforcement point, not the entire admission decision. A registry that only lists approved agents — the Microsoft Agent 365 registry or a homegrown one — with no PEP actually checking against it on the request path, is inventory. It isn't enforcement.
 
 ## 6. Boundary 2: Retrieval authorization
 
@@ -152,15 +184,23 @@ Three retrieval-isolation choices are available, and none of them is universally
 
 Option A is not automatically insufficient, and option B is not automatically required for every tenant. The right default depends on the tenant's actual risk classification from the registry, which is a governance-authority decision, not something this RFC dictates universally.
 
+When the caller is an agent rather than an interactive user, the claims used to build the retrieval filter should include the agent's Microsoft Entra Agent ID identity, not just the tenant. Two agents in the same tenant can legitimately have different retrieval scopes, and collapsing that distinction to tenant-only filtering would let one agent read documents another agent is not intended to reach, even though both are technically within the same tenant boundary.
+
 Where redaction and provenance matter regardless of isolation tier: applying PII or secret redaction before content is embedded (not only at query time), tagging retrieved chunks with a provenance marker so the model's system prompt can instruct it to treat retrieved content as data rather than instructions, and partitioning any query-embedding cache by tenant so a cache hit can't cross a tenant boundary. None of this replaces the identity-derived filter; it reduces the blast radius if the filter is ever misapplied.
 
 ## 7. Boundary 3: Model invocation
 
-The policy decision at this boundary considers the caller, the tenant, the calling application or agent, its stated purpose, the data classification of the request, the requested model and model version, the target region, and the requested capability (for example, whether tool use is permitted for this call). The model itself does not make this decision. It receives a request only after the decision has already resolved to allow, restrict, or block.
+The policy decision at this boundary considers the caller, the tenant, the calling application, the specific agent identity when the caller is an agent, its stated purpose, the data classification of the request, the requested model and model version, the target region, and the requested capability (for example, whether tool use is permitted for this call). The model itself does not make this decision. It receives a request only after the decision has already resolved to allow, restrict, or block.
 
-The preferred identity path is a Microsoft Entra ID managed identity, using `DefaultAzureCredential` to acquire a token and call an approved Azure OpenAI deployment. Microsoft Entra access-token lifetime is not normally something the application controls on a per-request basis; the credential library handles caching and refresh, and there is no need to build a custom mechanism to shorten or rotate that lifetime artificially.
+Including the agent identity as its own policy input matters because attribution at this boundary should resolve to the specific agent, not only to the application hosting it. A single application can host several distinct agents, each with its own Entra Agent ID identity; a policy decision and an audit record that only capture which application called the model lose that distinction.
 
-Some providers in a multi-provider deployment won't support Entra-based authentication. For those, a custom credential broker is a reasonable fallback, but it should be labeled clearly for what it is:
+**Managed identity secures the hosting workload, not the agent.** An agent identity blueprint typically holds a federated identity credential that trusts a managed identity on the hosting workload. That managed identity authenticates the *blueprint* to Microsoft Entra ID — it doesn't itself call Azure OpenAI, and it shouldn't be the principal an RBAC role is granted to when a distinct agent identity exists. The agent identity is the principal that needs the RBAC role assignment (for example, Cognitive Services OpenAI User) on the target Azure OpenAI resource, because the agent identity, not the managed identity, is what shows up as the caller in the request and in the audit trail.
+
+Where an application doesn't host distinct, individually attributable agents — a single service calling a model directly on its own behalf — a managed identity acquired through `DefaultAzureCredential` remains the right default, and is what §10.2's reference implementation shows. Microsoft Entra access-token lifetime is not normally something the application controls on a per-request basis; the credential library handles caching and refresh, and there is no need to build a custom mechanism to shorten or rotate that lifetime artificially.
+
+Whether a given agent runtime or orchestration framework already acquires and forwards an Entra Agent ID token for outbound model calls, instead of falling back to its own managed identity or application identity, varies by platform today and needs to be verified against current documentation rather than assumed. As one concrete example, Microsoft Foundry's own agent types don't all support the same depth of Agent 365 and Agent ID integration: a prompt agent and a hosted agent are documented with different levels of support for registry sync, autopilot publishing, and activity data collection. Treat per-runtime Agent ID support as something to confirm, not something to take for granted.
+
+Some providers in a multi-provider deployment won't support Entra-based authentication at all. For those, a custom credential broker is a reasonable fallback, but it should be labeled clearly for what it is:
 
 - A custom component, not a Microsoft-native service.
 - Necessary only for providers that don't support the preferred identity model.
@@ -219,7 +259,7 @@ sequenceDiagram
     │               │                 │                    │─ decision evidence emitted at every boundary
 ```
 
-1. The client sends a request with a Microsoft Entra ID token. Front Door and the WAF apply conventional edge protections.
+1. The client sends a request with a Microsoft Entra ID token — a user token, an agent identity token, or a delegated token where an agent identity acts on a signed-in user's behalf. Front Door and the WAF apply conventional edge protections.
 2. API Management validates the token, enforces size and rate limits, and assigns a correlation identifier.
 3. The AI mediation service (a custom application component) applies the content-safety check on the input and decides allow, restrict, or block (§9).
 4. If retrieval is required, the mediation service queries Azure AI Search with a filter derived from the caller's validated claims.
@@ -336,6 +376,8 @@ def invoke_model(deployment: str, messages: list[dict]) -> str:
 
 On an Azure-hosted workload, `DefaultAzureCredential` resolves to the assigned managed identity without any code change. Locally, it resolves to the developer's own signed-in session. Neither path stores a credential in application configuration. A compromised workload identity still limits secret theft; it does not by itself prevent a compromised workload from calling the model within whatever permissions that identity already has (§12).
 
+This pattern authenticates the hosting workload itself. Where distinct, individually attributable agents exist, the RBAC role on the Azure OpenAI resource, and the token used here, should belong to each agent's Entra Agent ID identity instead, per §7.
+
 ### 10.3 Retrieval authorization (boundary 2)
 
 ```python
@@ -375,6 +417,7 @@ def search_with_authorization(query: str, claims: dict, requested_namespace: str
 | Failure | Expected behavior | Security decision | Availability impact | Evidence emitted |
 |---|---|---|---|---|
 | Entra token-validation failure | Request rejected at the gateway | Fail-closed, 401 | None beyond the rejected request | Auth-reject event, no content |
+| Agent identity token acquisition failure (blueprint credential or federated exchange failure) | The mediation service or agent runtime can't mint a token for the agent's Entra Agent ID identity | Fail-closed; do not silently fall back to calling the model under the hosting workload's own managed identity in place of the agent's identity | That specific agent's requests fail until the credential path recovers | Event marked `agent_identity_unavailable` |
 | API Management unavailable | Requests can't reach boundary 1 at all | Fail-closed by design; there is no bypass path | Full outage for the affected route until APIM recovers | Platform-level monitoring, not an application event |
 | Content Safety unavailable | Mediation service can't get a risk signal | Fail-closed to restrict, not allow, per §9's stated posture | Reduced-capability responses only, until the dependency recovers | Event marked `content_safety_unavailable` |
 | Local policy engine unavailable or stale | Application-tier decisions have no current policy to evaluate against | Fail-closed; do not fall back to a default-allow | Requests needing that decision fail | Event marked `policy_unavailable` |
@@ -395,10 +438,12 @@ This design does not solve everything, and it shouldn't be read as if it does.
 - **If HMAC-based trust between components is retained anywhere** (for example, between a gateway and the mediation service, in place of mutual TLS or a workload-identity-based trust model), it needs an explicit rotation schedule, replay protection, a canonical serialization for the signed payload, and a clearly bounded compromise scope. A shared secret that never rotates and has no replay window is not a trust boundary, just an obstacle.
 - **Risk-classification thresholds require calibration and will produce both false positives and false negatives.** No threshold shown in this document has been validated against a real traffic distribution.
 - **Reading the request body only after authentication doesn't prove nothing upstream buffered or logged it first.** Front Door, API Management, and any reverse proxy in the path can retain request data according to their own diagnostic settings, independent of what the application does after the fact.
+- **Entra Agent ID integration is not uniformly available across every agent runtime or platform today.** A runtime that doesn't yet acquire or forward an agent identity token will attribute its model and tool calls to its own managed identity or application identity instead of the specific agent. That's a real attribution gap, not a detail to assume away, and it needs checking against current Microsoft Entra Agent ID and Microsoft Foundry documentation for the specific runtime in use.
 
 ## 13. Out of scope
 
 - Tool authorization, argument validation, resource-side authorization, human approval, and side-effect controls — [RFC-015 Agent Security](/content/agent-security.md).
+- Detailed agent-to-tool authentication, delegation chains, sponsor governance, and agent lifecycle remediation, including Microsoft Agent 365 registry actions such as block, reassign, or retire — [RFC-015 Agent Security](/content/agent-security.md).
 - Complete telemetry schema, Sentinel detection rules, and evaluation or drift detection — [RFC-016 GenAI Observability](/content/observability.md).
 - The full monitoring and threat-protection pipeline this RFC's enforcement points feed evidence into is described in the [Azure GenAI security series](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/securing-genai-workloads-in-azure-a-complete-guide-to-monitoring-and-threat-prot/4463145), co-authored with Umesh Nagdev. This RFC does not restate that pipeline.
 - Air-gapped or on-premises deployments.

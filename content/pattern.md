@@ -38,13 +38,13 @@ Not everything belongs in one place. The control plane holds authority; the exec
 
 | Function | Plane | Concrete choice in this reference |
 |---|---|---|
-| Agent / model / tool / MCP registry | Control | Single source of truth for what exists, who owns it, and its trust class. |
+| Agent / model / tool / MCP registry | Control | Single source of truth for what exists, who owns it, and its trust class. Microsoft Agent 365 is a concrete example of this registry across platforms. |
 | Policy definitions and versions | Control | Signed OPA bundles, canary + rollback, per-tenant thresholds. |
 | Identity blueprints and lifecycle | Control | Entra Agent ID (or equivalent) with delegation chain and sponsor. |
 | Risk classification and exceptions | Control | Governance-owned. App teams do not self-classify. |
 | Policy decision point (PDP) | Logically central, physically replicated | OPA sidecar over UDS in each pod, so the decision call stays local to the request path rather than a remote network hop. |
 | Edge / API gateway | Execution, distributed by region | Envoy at PoP or Azure APIM. Handles TLS, OIDC verify, cheap classifier gates. |
-| AI mediation service | Execution, per environment | Applies policy obligations (redact, route, restrict), calls retrieval and models under a workload identity, forwards decision evidence. It is a PEP, not the control plane itself. |
+| AI mediation service | Execution, per environment | Applies policy obligations (redact, route, restrict), calls retrieval and models under a workload or agent identity, forwards decision evidence. It is a PEP, not the control plane itself. |
 | Tenant-isolated retrieval | Execution, at the vector store | Namespace per tenant. Tenant resolved from the token, not the request body. |
 | Tool authorization | Execution, at gateway AND at tool | The gateway check does not replace the tool's own OAuth resource-server check. |
 | Business systems | Execution, unchanged | The CRM, ERP, or database still runs its own row-level authorization. |
