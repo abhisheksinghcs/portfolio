@@ -47,7 +47,7 @@ flowchart LR
 | Stage | Article | Covers | Running-scenario stage(s) | Maps to |
 |---|---|---|---|---|
 | Define | 1 | Purpose, scope, threat model, initial risk tier, why identity gets established before capability | 1 | Governance and risk classification ([pattern.md](/content/pattern.md)) |
-| Identify | 2 (planned) | Entra Agent ID blueprint, agent identity, sponsor, workload identity, and how they differ | 1 (identity groundwork) | [RFC-014 §5](/content/control-plane.md) |
+| Identify | 2 | Entra Agent ID blueprint, agent identity, sponsor, workload identity, and how they differ | 1 (identity groundwork) | [RFC-014 §5](/content/control-plane.md) |
 | Build | 3 (planned) | Choosing a harness (Microsoft Agent Framework, a Foundry hosted agent, or a plain backend), the execution loop, where enforcement code actually runs | 1–2 | [Agent Runtime, Agentic Harness, and Application Enforcement](/content/agent-runtime-and-enforcement.md) |
 | Connect | 4 (planned) | Retrieval authorization, read-only tool calls, treating retrieved content as untrusted | 2–3 | [RFC-014 §6](/content/control-plane.md), [RFC-015 §5](/content/agent-security.md) |
 | Authorize | 5 (planned) | Write-capable tools, resource-side authorization, human approval for high-impact actions | 4–5 | [RFC-015 §6–7](/content/agent-security.md) |
@@ -60,10 +60,11 @@ Building something: read this series in order, following the links back into the
 ## Available now
 
 - [Part 1 — Define: Scoping EngBot](/content/agent-lifecycle-01-define.md)
+- [Part 2 — Identify: The Agent Identity Model](/content/agent-lifecycle-02-identify.md)
 
 ## Planned
 
-Parts 2 through 6 (Identify, Build, Connect, Authorize, Observe and Operate) are outlined but not yet published. They'll appear here, and in [llms.txt](/llms.txt), once drafted.
+Parts 3 through 6 (Build, Connect, Authorize, Observe and Operate) are outlined but not yet published. They'll appear here, and in [llms.txt](/llms.txt), once drafted.
 
 ## Where to go next
 

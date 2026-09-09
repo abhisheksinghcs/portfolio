@@ -10,18 +10,7 @@ When drafting an article below: create `content/agent-lifecycle-0N-<slug>.md` + 
 
 ---
 
-## Article 2 — Identify: The Agent Identity Model
-
-**Running-scenario coverage:** Stage 1 identity groundwork, ahead of Stage 2's retrieval access.
-**Maps to:** RFC-014 §5 (Entra Agent ID: blueprint, blueprint principal, individual agent identity, sponsor, application-only vs delegated access).
-
-Outline:
-- Recap: Article 1 created an agent identity with no permissions. This article covers what that identity actually is and how it's governed.
-- The three-identity distinction in depth: user identity, Entra Agent ID agent identity, managed/workload identity (federation vs client secret) — link to RFC-014 §5's concept table rather than re-deriving it; add narrative framing (why a security review asks "which identity did this?" three different ways).
-- Sponsor and lifecycle: who owns the agent's purpose, what "sponsor leaves the org" actually triggers, how an agent identity gets blocked/retired later (forward reference to Article 6 / RFC-015 out-of-scope items on Agent 365 registry actions).
-- Autonomous vs delegated interaction mode for *this* agent specifically: at Stage 1–2 EngBot is autonomous (no per-user delegation yet); note where delegated mode would change the identity story if a future stage added "on behalf of the requesting engineer."
-- Failure mode to cover: identity created but never granted a sponsor, or granted a sponsor who leaves before Stage 2 — what breaks, what Entra ID does automatically (sponsorship transfer to manager, per RFC-014 §5).
-- Close by handing off to Article 3: the identity exists; now decide what runs it.
+## Article 2 — Identify: The Agent Identity Model — **drafted**, see `content/agent-lifecycle-02-identify.md`.
 
 ## Article 3 — Build: Choosing and Building the Harness
 
