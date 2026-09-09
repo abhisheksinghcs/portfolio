@@ -40,6 +40,7 @@ Abhi Singh is a Principal Global Black Belt for AI Security at Microsoft (Oct 20
 - [The Secure Agent Lifecycle: From Prototype to Production](/content/agent-lifecycle.md): Practical, build-order companion to the RFCs above — define, identify, build, connect, authorize, observe and operate an AI agent, using one running scenario. Series landing page; maps each stage back to specific RFC boundaries.
 - [Part 1 — Define: Scoping the Engineering Knowledge and Change Agent](/content/agent-lifecycle-01-define.md): Why identity is established before capability, and what a zero-data-access agent still needs enforced.
 - [Part 2 — Identify: The Agent Identity Model](/content/agent-lifecycle-02-identify.md): The blueprint, blueprint principal, individual agent identity, and sponsor model, applied to EngBot's identity.
+- [Part 3 — Build: Choosing and Building the Harness](/content/agent-lifecycle-03-build.md): Why retrieval alone doesn't justify an agentic harness, where enforcement logic lives without one, and the concrete triggers that would change that.
 
 ## Writing
 

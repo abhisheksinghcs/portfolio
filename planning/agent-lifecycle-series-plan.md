@@ -12,17 +12,7 @@ When drafting an article below: create `content/agent-lifecycle-0N-<slug>.md` + 
 
 ## Article 2 — Identify: The Agent Identity Model — **drafted**, see `content/agent-lifecycle-02-identify.md`.
 
-## Article 3 — Build: Choosing and Building the Harness
-
-**Running-scenario coverage:** Stages 1–2, infrastructure decision before Stage 2 ships.
-**Maps to:** the `agent-runtime-and-enforcement.md` explainer (harness vs application enforcement tier), not a new RFC boundary.
-
-Outline:
-- The build decision Article 1 deferred: does this agent need Microsoft Agent Framework / a Foundry hosted agent, or does a direct model call still suffice once retrieval is added at Stage 2?
-- Walk the three deployment shapes from `agent-runtime-and-enforcement.md` (custom RAG app, Foundry hosted agent, simple gateway-managed app) applied specifically to this agent's Stage 2 requirements.
-- Where enforcement code actually lives once a harness exists: middleware, filters, hooks, tool wrappers, retrieval wrappers — concrete to this scenario, not generic.
-- Explicit non-goal: don't add a harness merely because "agents have harnesses" — justify it against what Stage 2 (retrieval coordination, session state) actually requires that a direct call doesn't provide.
-- Failure mode: harness owns retries/memory but the team assumes it also owns authorization — restate "a harness that contains some enforcement code is not automatically fully enforced everywhere."
+## Article 3 — Build: Choosing and Building the Harness — **drafted**, see `content/agent-lifecycle-03-build.md`.
 
 ## Article 4 — Connect: Retrieval and Read-Only Tools
 
