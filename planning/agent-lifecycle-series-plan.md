@@ -18,16 +18,6 @@ When drafting an article below: create `content/agent-lifecycle-0N-<slug>.md` + 
 
 ## Article 5 — Authorize: Proposing and Approving Changes — **drafted**, see `content/agent-lifecycle-05-authorize.md`.
 
-## Article 6 — Observe and Operate: Running It, Detecting Drift, Retiring It
+## Article 6 — Observe and Operate: Running It, Detecting Drift, Retiring It — **drafted**, see `content/agent-lifecycle-06-observe-operate.md`.
 
-**Running-scenario coverage:** ongoing, all five stages, plus what changes when the agent is decommissioned.
-**Maps to:** RFC-016 in full (event schema, native telemetry mapping, drift detection).
-
-Outline:
-- What's different about *operating* this agent versus building it: the same eight-question framework now applies continuously, not just at each stage's launch.
-- Concrete dashboards/queries for this scenario specifically: review-rate drift on the Stage 1 classifier, retrieval-provenance anomalies at Stage 2–3, approval-latency and override-rate at Stage 4–5 — grounded in RFC-016 §7's illustrative KQL pattern, not new queries invented here.
-- **Microsoft Agent 365**: the registry and posture surface for EngBot specifically — whether its registry entry (owner, sponsor, configured tools, instructions) is still accurate months after Stage 5 shipped. This is the same registry Article 5's approval gate reads from at authorization time; here it's the operator's own view of the same data, per RFC-014 §3 and §5.
-- **Microsoft Defender**: two distinct angles, not one. Defender XDR's `AIAgentsInfo`/`AgentsInfo` advanced hunting table for posture queries scoped to EngBot (missing instructions, an MCP tool configured that its owner forgot about, no authentication on an exposed endpoint) — a snapshot, not a decision event, per RFC-016 §4.2. Separately, Defender for Cloud AI Threat Protection alerts (`DetectionSource == "Microsoft Defender for AI Services"`) correlated against EngBot's own decision-evidence stream by `correlation_id` or principal, per RFC-016 §7's illustrative join.
-- **Microsoft Purview**: DLP, Insider Risk Management, and Communication Compliance applied to EngBot's Stage 4–5 outputs — the proposed or executed ticket and configuration changes — catching sensitive content in a drafted change even when identity-based authorization at Stage 5 already passed, the same content-based backstop described in RFC-015 §6.
-- Decommissioning: what "retire this agent" actually means for an Entra Agent ID identity (disable, don't just stop calling it), what evidence a retirement should produce, and the honest gap this leaves (RFC-015 §13 defers detailed lifecycle remediation to itself, not this series).
-- Close the series: point back to the landing page's boundary-mapping table and to the RFCs for anyone who arrived here first and now wants the reference architecture.
+All six articles are now drafted. This planning document has no remaining outlines; keep it for historical record of the drafting decisions made along the way.
