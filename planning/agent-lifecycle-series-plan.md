@@ -14,29 +14,9 @@ When drafting an article below: create `content/agent-lifecycle-0N-<slug>.md` + 
 
 ## Article 3 — Build: Choosing and Building the Harness — **drafted**, see `content/agent-lifecycle-03-build.md`.
 
-## Article 4 — Connect: Retrieval and Read-Only Tools
+## Article 4 — Connect: Retrieval and Read-Only Tools — **drafted**, see `content/agent-lifecycle-04-connect.md`.
 
-**Running-scenario coverage:** Stage 2 (retrieval) and Stage 3 (read-only tool calls).
-**Maps to:** RFC-014 §6 (retrieval authorization, the three isolation-tier comparison) and RFC-015 §5 (tool proposal, scoped to read-only tools specifically).
-
-Outline:
-- Stage 2 walkthrough using the eight-question framework: new capability (Azure AI Search retrieval), new authority (read access to an authorized document set), identity acting (still the Stage 1 agent identity, now with a retrieval grant), data exposed (internal engineering docs, scoped), PEP needed (boundary 2), evidence (retrieval_provenance field per RFC-016), what can fail (retrieval filter misapplied, retrieved content treated as instructions instead of data), residual risk (embedding-inversion / cross-tenant leak if isolation tier chosen poorly).
-- Which retrieval isolation tier fits this scenario (shared index with filters is likely sufficient for an internal engineering-docs use case; note the decision is risk-tier-owned, not universal, per RFC-014 §6).
-- Stage 3 walkthrough, same eight questions, for read-only tools (e.g., "check deployment status," "look up a ticket") — emphasize read-only tools still need boundary 4 (tool proposal / grant check) even though they can't cause a side effect; the risk here is information disclosure, not action.
-- Explicit contrast with Article 5: read-only tools don't need boundary 6 (human approval); that's what changes at Stage 4.
-
-## Article 5 — Authorize: Proposing and Approving Changes
-
-**Running-scenario coverage:** Stage 4 (proposes changes) and Stage 5 (performs approved changes).
-**Maps to:** RFC-015 §6–7 (resource-side authorization, side effect / human approval), plus RFC-015 §9 (pre-deployment red-teaming informing this stage's impact tier).
-
-Outline:
-- Stage 4 walkthrough: the agent can now propose a ticket update, a config change, or a deployment trigger — but proposing is not executing. Reinforce "the model proposes, the enforcement layer validates and coordinates, the resource system authorizes and executes" from the runtime/enforcement explainer.
-- Impact classification for this specific agent's tool set: which of its actions are low-impact (e.g., adding a comment to a ticket) vs high-impact (e.g., triggering a deployment) — illustrative, not universal, per RFC-015 §7.
-- Stage 5 walkthrough: the approval gate itself (Power Automate / Logic Apps pattern from RFC-015 §7), resource-side RBAC assigned to the agent identity specifically (not the hosting workload's managed identity), and what evidence a completed, approved action produces.
-- Microsoft Agent 365 as a pre-approval check, not just a post-hoc dashboard: before a high-impact proposal is approved, the approval workflow reads EngBot's current Agent 365 registry status (active, sponsored, not flagged or blocked). An agent flagged or blocked in Agent 365 doesn't get a proposed action approved regardless of what its tool grant says — this is RFC-014 §5's “agent lifecycle and risk state” bullet, applied concretely at the moment of approval rather than only at admission.
-- Failure modes specific to this scenario: approval workflow unavailable during an on-call window: does the change wait, or does someone override it manually, and what does that override itself have to produce as evidence.
-- Residual risk to state plainly: an approver who rubber-stamps proposals reintroduces the excessive-agency risk this stage exists to prevent (same caution as RFC-015 §12).
+## Article 5 — Authorize: Proposing and Approving Changes — **drafted**, see `content/agent-lifecycle-05-authorize.md`.
 
 ## Article 6 — Observe and Operate: Running It, Detecting Drift, Retiring It
 

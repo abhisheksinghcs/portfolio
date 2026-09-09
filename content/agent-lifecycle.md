@@ -49,8 +49,8 @@ flowchart LR
 | Define | 1 | Purpose, scope, threat model, initial risk tier, why identity gets established before capability | 1 | Governance and risk classification ([pattern.md](/content/pattern.md)) |
 | Identify | 2 | Entra Agent ID blueprint, agent identity, sponsor, workload identity, and how they differ | 1 (identity groundwork) | [RFC-014 §5](/content/control-plane.md) |
 | Build | 3 | Choosing a harness (Microsoft Agent Framework, a Foundry hosted agent, or a plain backend), the execution loop, where enforcement code actually runs | 1–2 | [Agent Runtime, Agentic Harness, and Application Enforcement](/content/agent-runtime-and-enforcement.md) |
-| Connect | 4 (planned) | Retrieval authorization, read-only tool calls, treating retrieved content as untrusted | 2–3 | [RFC-014 §6](/content/control-plane.md), [RFC-015 §5](/content/agent-security.md) |
-| Authorize | 5 (planned) | Write-capable tools, resource-side authorization, human approval for high-impact actions | 4–5 | [RFC-015 §6–7](/content/agent-security.md) |
+| Connect | 4 | Retrieval authorization, read-only tool calls, treating retrieved content as untrusted | 2–3 | [RFC-014 §6](/content/control-plane.md), [RFC-015 §5](/content/agent-security.md) |
+| Authorize | 5 | Write-capable tools, resource-side authorization, human approval for high-impact actions | 4–5 | [RFC-015 §6–7](/content/agent-security.md) |
 | Observe and Operate | 6 (planned) | Evidence, detection, drift, incident response, and decommissioning an agent identity | Ongoing, all stages | [RFC-016](/content/observability.md) |
 
 ## Recommended reading order
@@ -62,10 +62,12 @@ Building something: read this series in order, following the links back into the
 - [Part 1 — Define: Scoping EngBot](/content/agent-lifecycle-01-define.md)
 - [Part 2 — Identify: The Agent Identity Model](/content/agent-lifecycle-02-identify.md)
 - [Part 3 — Build: Choosing and Building the Harness](/content/agent-lifecycle-03-build.md)
+- [Part 4 — Connect: Retrieval and Read-Only Tools](/content/agent-lifecycle-04-connect.md)
+- [Part 5 — Authorize: Proposing and Approving Changes](/content/agent-lifecycle-05-authorize.md)
 
 ## Planned
 
-Parts 4 through 6 (Connect, Authorize, Observe and Operate) are outlined but not yet published. They'll appear here, and in [llms.txt](/llms.txt), once drafted.
+Part 6 (Observe and Operate) is outlined but not yet published. It'll appear here, and in [llms.txt](/llms.txt), once drafted.
 
 ## Where to go next
 

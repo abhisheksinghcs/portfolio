@@ -41,6 +41,8 @@ Abhi Singh is a Principal Global Black Belt for AI Security at Microsoft (Oct 20
 - [Part 1 — Define: Scoping the Engineering Knowledge and Change Agent](/content/agent-lifecycle-01-define.md): Why identity is established before capability, and what a zero-data-access agent still needs enforced.
 - [Part 2 — Identify: The Agent Identity Model](/content/agent-lifecycle-02-identify.md): The blueprint, blueprint principal, individual agent identity, and sponsor model, applied to EngBot's identity.
 - [Part 3 — Build: Choosing and Building the Harness](/content/agent-lifecycle-03-build.md): Why retrieval alone doesn't justify an agentic harness, where enforcement logic lives without one, and the concrete triggers that would change that.
+- [Part 4 — Connect: Retrieval and Read-Only Tools](/content/agent-lifecycle-04-connect.md): Identity-derived retrieval authorization, choosing a retrieval isolation tier, and EngBot's first read-only tool call.
+- [Part 5 — Authorize: Proposing and Approving Changes](/content/agent-lifecycle-05-authorize.md): Impact classification, human approval, Agent 365 as a pre-approval check, and resource-side authorization for EngBot's first write-capable tool.
 
 ## Writing
 
