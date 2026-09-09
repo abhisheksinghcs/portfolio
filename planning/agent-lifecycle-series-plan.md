@@ -6,6 +6,8 @@ Series landing page: `content/agent-lifecycle.md`. Article 1 (Define) is fully d
 
 When drafting an article below: create `content/agent-lifecycle-0N-<slug>.md` + `.html` (same zero-md wrapper template as the existing articles), fully write it, then add it to `content/agent-lifecycle.md`'s "Available now" list, `llms.txt`'s Core Work or a new lifecycle section, and remove its outline from this file (or mark it drafted).
 
+**Structural convention (established in Article 1):** each concept-bearing section should have a `### The concept` subsection (the general principle, no EngBot specifics) followed by a `### Applied to EngBot` subsection (naming the specific Azure service, identity, or policy this stage adds). Don't blend the two into one paragraph.
+
 ---
 
 ## Article 2 — Identify: The Agent Identity Model
@@ -17,7 +19,7 @@ Outline:
 - Recap: Article 1 created an agent identity with no permissions. This article covers what that identity actually is and how it's governed.
 - The three-identity distinction in depth: user identity, Entra Agent ID agent identity, managed/workload identity (federation vs client secret) — link to RFC-014 §5's concept table rather than re-deriving it; add narrative framing (why a security review asks "which identity did this?" three different ways).
 - Sponsor and lifecycle: who owns the agent's purpose, what "sponsor leaves the org" actually triggers, how an agent identity gets blocked/retired later (forward reference to Article 6 / RFC-015 out-of-scope items on Agent 365 registry actions).
-- Autonomous vs delegated interaction mode for *this* agent specifically: at Stage 1–2 the Engineering Knowledge and Change Agent is autonomous (no per-user delegation yet); note where delegated mode would change the identity story if a future stage added "on behalf of the requesting engineer."
+- Autonomous vs delegated interaction mode for *this* agent specifically: at Stage 1–2 EngBot is autonomous (no per-user delegation yet); note where delegated mode would change the identity story if a future stage added "on behalf of the requesting engineer."
 - Failure mode to cover: identity created but never granted a sponsor, or granted a sponsor who leaves before Stage 2 — what breaks, what Entra ID does automatically (sponsorship transfer to manager, per RFC-014 §5).
 - Close by handing off to Article 3: the identity exists; now decide what runs it.
 

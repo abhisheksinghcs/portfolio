@@ -14,17 +14,19 @@ Security architects, AI and cloud architects, engineers building agents, securit
 
 ## The running scenario
 
-Every article in this series follows one reference implementation: an internal **Engineering Knowledge and Change Agent**. It is not a real system, a real customer, or a real employer's deployment — it's a fictional reference scenario used consistently so the series can show concrete decisions instead of abstractions. Its capability grows in five stages:
+Every article in this series follows one reference implementation, carried forward stage by stage: **EngBot**, an internal assistant for an engineering organization. It is not a real system, a real customer, or a real employer's deployment — it's a fictional reference scenario, deliberately simple, so the series can show concrete decisions instead of abstractions. EngBot starts as a plain Q&A chatbot and gains exactly one new concrete capability per stage, naming a specific Microsoft-native component each time rather than staying abstract:
 
-| Stage | Capability |
-|---|---|
-| 1 | Answers general engineering questions. No access to internal data or tools. |
-| 2 | Retrieves authorized internal engineering documents. |
-| 3 | Calls read-only tools to inspect engineering systems. |
-| 4 | Proposes changes to tickets, configuration, or deployment systems. |
-| 5 | Performs approved changes under strict authorization and human oversight. |
+| Stage | Capability | What gets added |
+|---|---|---|
+| 1 | Answers general engineering questions. No access to internal data or tools. | An Azure OpenAI deployment behind Azure API Management, and an Entra Agent ID identity for EngBot itself. |
+| 2 | Retrieves authorized internal engineering documents. | An Azure AI Search index of internal runbooks and wiki pages, scoped by identity-derived filters. |
+| 3 | Calls read-only tools to inspect engineering systems. | A read-only tool that looks up build and deployment status. |
+| 4 | Proposes changes to tickets, configuration, or deployment systems. | A tool that drafts a work-item update or configuration change — proposed, not yet executed. |
+| 5 | Performs approved changes under strict authorization and human oversight. | An approval-gated write path that executes the change EngBot proposed, once a human approves it. |
 
-At every stage the series asks the same eight questions: what new capability was introduced, what new authority the agent received, which identity is acting, which data is exposed, which policy enforcement point is needed, what evidence must be produced, what can fail, and what residual risk remains after the stage is built.
+Every article introduces its stage's general concept first, then shows exactly what that concept means for EngBot — naming the specific Azure service, identity, or policy involved rather than leaving it abstract.
+
+At every stage the series still asks the same eight questions: what new capability was introduced, what new authority the agent received, which identity is acting, which data is exposed, which policy enforcement point is needed, what evidence must be produced, what can fail, and what residual risk remains after the stage is built.
 
 ## The six lifecycle stages
 
@@ -57,7 +59,7 @@ Building something: read this series in order, following the links back into the
 
 ## Available now
 
-- [Part 1 — Define: Scoping the Engineering Knowledge and Change Agent](/content/agent-lifecycle-01-define.md)
+- [Part 1 — Define: Scoping EngBot](/content/agent-lifecycle-01-define.md)
 
 ## Planned
 
