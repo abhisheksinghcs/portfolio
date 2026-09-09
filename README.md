@@ -8,6 +8,7 @@
 * **[Agent Runtime, Agentic Harness, and Application Enforcement](./content/agent-runtime-and-enforcement.md)** — Standalone explainer: where the AI gateway, agent runtime, agentic harness, and application enforcement tier each run, and how the identity model works.
 * **[Microsoft-Native Enforcement for Agent Tool Use and Side Effects](./content/agent-security.md)** — Boundaries 4-6 of the control-plane pattern: per-agent tool access grants, resource-side RBAC, human-approved side effects, and pre-deployment red teaming.
 * **[GenAI Observability Model](./content/observability.md)** — Telemetry pipelines, token tracking, and behavioral threat detection integrated with SIEM.
+* **[The Secure Agent Lifecycle: From Prototype to Production](./content/agent-lifecycle.md)** — Practical, build-order companion series to the RFCs above: define, identify, build, connect, authorize, observe and operate an agent. Part 1 published; parts 2-6 outlined.
 * **[Publications & Thought Leadership](./content/publications.md)** — Whitepapers on securing generative AI, threat vectors, and defense strategies.
 * **[Customer Impact Stories](./content/impact-stories.md)** — Enterprise case studies across financial services, telco, and regulated public sector accounts ($50M+ pipeline scope).
 
