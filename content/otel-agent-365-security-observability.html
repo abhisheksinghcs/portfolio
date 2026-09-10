@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RFC-016: GenAI Observability — Abhi Singh</title>
-  <meta name="description" content="Normalized event schema, identity correlation, and policy-drift detection for GenAI control-plane enforcement points — extending the published Azure GenAI monitoring series." />
-  <link rel="canonical" href="/content/observability.html" />
-  <link rel="alternate" type="text/markdown" href="/content/observability.md" title="Markdown source (canonical for AI agents)" />
+  <title>OpenTelemetry, Agent 365, and Security Observability — Abhi Singh</title>
+  <meta name="description" content="How OpenTelemetry, Microsoft Agent 365, and Defender XDR combine runtime evidence with agent security inventory and posture." />
+  <link rel="canonical" href="/content/otel-agent-365-security-observability.html" />
+  <link rel="alternate" type="text/markdown" href="/content/otel-agent-365-security-observability.md" title="Markdown source (canonical for AI agents)" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/css/main.css" />
   <style>
     body { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
     .doc-nav { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #eee; }
     .doc-nav a { margin-right: 1rem; }
+    .doc-loading { display: none; }
     zero-md { display: block; }
     zero-md pre { background: #f6f8fa; padding: 0.85rem 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.85rem; line-height: 1.45; }
     zero-md code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
@@ -26,18 +27,21 @@
     zero-md h3 { font-size: 1.1rem; margin-top: 1.5rem; }
     zero-md hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
     .mermaid { text-align: center; margin: 1.25rem 0; }
+    @media (max-width: 600px) {
+      zero-md table { display: block; overflow-x: auto; }
+    }
   </style>
   <script type="module" src="https://cdn.jsdelivr.net/npm/zero-md@3?register"></script>
 </head>
 <body>
   <nav class="doc-nav">
     <a href="/">← Home</a>
-    <a href="/content/otel-agent-365-security-observability.html">OTel + Agent 365 guide</a>
-    <a href="/content/observability.md">Markdown source</a>
+    <a href="/content/observability.html">Observability RFC</a>
+    <a href="/content/otel-agent-365-security-observability.md">Markdown source</a>
     <a href="/llms.txt">llms.txt</a>
   </nav>
 
-  <zero-md src="./observability.md" no-shadow>
+  <zero-md src="./otel-agent-365-security-observability.md" no-shadow>
     <p class="doc-loading">Loading rendered document…</p>
   </zero-md>
 

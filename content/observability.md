@@ -8,6 +8,8 @@
 
 > **Prerequisite reading:** the [Control-Plane Pattern overview](/content/pattern.md). This RFC defines the evidence model produced by the six enforcement boundaries described there.
 
+> **New to OpenTelemetry or Agent 365?** Start with [OpenTelemetry, Agent 365, and Security Observability](/content/otel-agent-365-security-observability.md), a self-contained explainer and discussion guide for the runtime and Defender XDR views this RFC builds on.
+
 > **Rendering note.** This document is authored for two audiences: human reviewers and automated agents / crawlers ingesting the raw Markdown. Diagrams are provided in both a Mermaid block and an ASCII block. When they disagree, the ASCII form is authoritative.
 
 ---
@@ -274,6 +276,7 @@ This is a progression, not a rewrite: the published series remains the correct s
 
 ## Where to go next
 
+- [OpenTelemetry, Agent 365, and Security Observability](/content/otel-agent-365-security-observability.md) — an approachable introduction to OTel runtime signals, Agent 365's agent-aware telemetry, and Defender XDR security context.
 - [The AI Control-Plane Pattern](/content/pattern.md) — the six-boundary model this RFC's schema is built around.
 - [RFC-014 Microsoft-Native Control-Plane Enforcement](/content/control-plane.md) — the API Management gateway, AI mediation service, and retrieval/model boundaries that emit boundary 1–3 events.
 - [RFC-015 Agent Security](/content/agent-security.md) — tool authorization and delegation chains that emit boundary 4–6 events.

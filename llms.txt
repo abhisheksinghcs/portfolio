@@ -34,6 +34,7 @@ Abhi Singh is a Principal Global Black Belt for AI Security at Microsoft (Oct 20
 - [Microsoft-Native Control-Plane Enforcement](/content/control-plane.md): Reference architecture implementing boundaries 1-3 of the control-plane pattern (agent admission, retrieval authorization, model invocation) on Microsoft-native services — Entra ID, API Management, Azure AI Search, Azure OpenAI, Azure AI Content Safety.
 - [Microsoft-Native Enforcement for Agent Tool Use and Side Effects](/content/agent-security.md): Reference architecture implementing boundaries 4-6 of the control-plane pattern (tool proposal, resource-side authorization, human-approved side effects) on Microsoft-native services — Entra ID Governance access packages, Azure RBAC, Defender for Cloud CIEM, Microsoft Purview DLP, Microsoft Foundry AI Red Teaming Agent.
 - [GenAI Observability Model](/content/observability.md): Normalized event schema, identity correlation (user/workload/agent), and policy-drift detection across all six control-plane enforcement boundaries. Extends the published Azure GenAI monitoring series (co-authored with Umesh Nagdev) with the architectural layer — schema and correlation — that pipeline assumes.
+- [OpenTelemetry, Agent 365, and Security Observability](/content/otel-agent-365-security-observability.md): Self-contained introduction and discussion guide explaining OTel runtime signals, Agent 365's agent-aware telemetry conventions, and Defender XDR agent inventory and posture.
 
 ## Lifecycle series
 
