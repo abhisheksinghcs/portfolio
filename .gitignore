@@ -10,7 +10,20 @@
 # Local logs
 *.log
 
+# Local cross-session handoff
+/STATUS.md
+
 Workshop.pptx
 Workshop.pdf
 profile.pdf
 abhi-singh-072826.pdf
+temp/
+
+# Python (engineering-change-agent companion implementation)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.env

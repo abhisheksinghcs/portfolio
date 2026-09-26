@@ -46,6 +46,14 @@ Abhi Singh is a Principal Global Black Belt for AI Security at Microsoft (Oct 20
 - [Part 5 — Authorize: Proposing and Approving Changes](/content/agent-lifecycle-05-authorize.md): Impact classification, human approval, Agent 365 as a pre-approval check, and resource-side authorization for EngBot's first write-capable tool.
 - [Part 6 — Observe and Operate: Running It, Detecting Drift, Retiring It](/content/agent-lifecycle-06-observe-operate.md): Drift-detection queries, Agent 365, Defender, and Purview applied to EngBot's own event stream, and what retiring an agent identity actually requires. Closes the series.
 
+## Inside the Agentic Harness (companion implementation series)
+
+Companion implementation track to Lifecycle Part 3 (Build). A small, tested, reproducible agentic harness built with Microsoft-native services; the code and captured test evidence live in `/engineering-change-agent/`. Synthetic data only; a teaching reference, not production-ready.
+
+- [Inside the Agentic Harness: From Agent Intent to Governed Action](/content/agent-harness.md): Series landing page. The running scenario, the two build stages (1A explicit loop, 1B framework mapping), and the design stance that a model-generated tool call is an untrusted proposal.
+- [Part 1 — The Loop and the Proposal](/content/agent-harness-01-explicit-loop.md): The explicit request flow; why model output is a proposal; why schema validation is not authorization; tool registries as allowlists; denying production twice.
+- [Part 2 — Governing Execution, Evidence, and the Conversation Protocol](/content/agent-harness-02-governing-execution.md): tool_call_id correlation, execution budgets and timeouts, normalized failures, content-minimizing evidence, and the application-owned keyless model target.
+
 ## Writing
 
 - [Publications & Whitepapers](/content/publications.md): Selected talks, papers, and long-form writing.

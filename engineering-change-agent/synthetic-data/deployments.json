@@ -1,0 +1,29 @@
+[
+  {
+    "deployment_id": "DEP-1003",
+    "application": "payments-api",
+    "environment": "test",
+    "status": "validation_complete",
+    "tests_passed": true,
+    "open_blockers": 0,
+    "change_window_available": true
+  },
+  {
+    "deployment_id": "DEP-2001",
+    "application": "payments-api",
+    "environment": "sandbox",
+    "status": "in_progress",
+    "tests_passed": false,
+    "open_blockers": 2,
+    "change_window_available": false
+  },
+  {
+    "deployment_id": "DEP-3007",
+    "application": "identity-service",
+    "environment": "development",
+    "status": "validation_complete",
+    "tests_passed": true,
+    "open_blockers": 0,
+    "change_window_available": true
+  }
+]

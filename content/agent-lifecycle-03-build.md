@@ -94,6 +94,7 @@ Part 4, **Connect**, gives `retrieval_scope` its real content — the identity-d
 ## Where to go next
 
 - [The Secure Agent Lifecycle](/content/agent-lifecycle.md) — series landing page.
+- [Inside the Agentic Harness](/content/agent-harness.md) — companion implementation series that builds a small, tested harness in code, with the design patterns and captured evidence behind this stage.
 - [Agent Runtime, Agentic Harness, and Application Enforcement](/content/agent-runtime-and-enforcement.md) — the three deployment shapes and the harness/enforcement distinction this article applies.
 - [Part 2 — Identify](/content/agent-lifecycle-02-identify.md) — the identity `engbot`'s backend calls under.
 - [RFC-014 §6](/content/control-plane.md) — the retrieval-authorization rules Part 4 attaches to `retrieval_scope`.
