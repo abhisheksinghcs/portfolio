@@ -309,3 +309,81 @@ pattern — a sink is the write-only end of a pipe.)
 **CLI stream discipline:** the CLI sends the *answer* to **stdout** and the
 *evidence sink* to **stderr**, so they can be piped independently
 (`change-agent "..." 2> evidence.log`).
+
+---
+
+## Domain concept: a "proposal" and its `tool_call_id`
+
+**Proposal.** When the harness calls the model with `tools=...`, the model may
+answer with either final text or a *tool call* — a request to run a tool. We call
+that a **proposal** because it carries no authority: it is a suggestion our
+deterministic code may accept or reject (resolve -> validate -> authorize ->
+execute). A jailbroken or mistaken model can propose anything; that is fine,
+because a proposal is a request, not a command.
+
+**Where `tool_call_id` comes from.** The model/service generates it. A tool-call
+response looks like:
+
+```json
+{
+  "role": "assistant",
+  "content": null,
+  "tool_calls": [
+    { "id": "call_abc123", "type": "function",
+      "function": { "name": "get_deployment_status",
+                    "arguments": "{\"application\":\"payments-api\", ...}" } }
+  ]
+}
+```
+
+- `id` (`call_abc123`) — minted by the model/service, not by us.
+- `function.name` — untrusted; checked against the registry.
+- `function.arguments` — an untrusted JSON *string*; `json.loads` + Pydantic
+  validated.
+
+**How the id relates to the proposal.** The `tool_call_id` *is* the identity of
+that proposal — the correlation key that binds a *result* back to the *request*.
+After running the tool, we send a `role:"tool"` message reusing the same id:
+
+```
+assistant -> tool_calls: [ { id: "call_abc123", name: ..., arguments: ... } ]  # proposal
+tool      -> { tool_call_id: "call_abc123", content: {"outcome":"success",...} } # its result
+```
+
+The model reads `tool_call_id` to know which result answers which call. A broken
+id breaks the binding, so `Harness._check_correlation` fails closed on missing or
+reused ids, and Stage 1A allows only one proposal per turn.
+
+**Analogy:** a purchase requisition. The model files a requisition (proposal)
+stamped with a tracking number (`tool_call_id`); procurement (the harness)
+approves/denies, fulfills if allowed, and files the outcome under the same
+tracking number. The requisition authorizes nothing — approval does.
+
+---
+
+## Where different guardrails belong (not everything goes in policy)
+
+Policy is the home for **authorization** guardrails, but each layer owns a
+different kind of check. Put a guardrail at the layer that owns its concern:
+
+| Guardrail kind | Home | Examples |
+|---|---|---|
+| **Shape / structure** of arguments | Pydantic argument model (`tools/…`) | required fields, types, enum values, string patterns, numeric ranges, `extra="forbid"` |
+| **Which tools exist at all** | Tool registry allowlist | only registered tools resolve; unknown -> fail closed |
+| **Whether a valid proposal is permitted** | `policy.py` | caller/agent/tenant/purpose, environment, approval required, resource ownership, quotas |
+| **The tool's own contract** | Tool implementation | read-only, its own production denial, known-target limits, target-side authZ |
+| **Budgets & protocol** | Harness / `HarnessLimits` | max steps, max tool calls, timeout, `tool_call_id` correlation, output normalization |
+| **Behavioral steering** | Instructions (system prompt) | *not a control* — guidance only |
+
+Guidance:
+- A guardrail about **"is this allowed?"** -> policy. Expand `ExecutionContext`
+  (add caller roles, tenant, approval state, resource owner) and add rules to
+  `Policy.authorize`.
+- A guardrail about **"is this well-formed?"** -> the argument schema, not policy.
+- A guardrail the **target must enforce regardless of caller** -> the tool itself
+  (defense in depth; e.g. production is denied by *both* policy and the tool).
+- A guardrail about **"how much / how long"** -> harness budgets.
+
+So "further guardrails go in policy" is correct *for authorization rules*; for
+other kinds, prefer the layer that owns the concern, and use two layers when the
+control is important enough to deserve defense in depth.

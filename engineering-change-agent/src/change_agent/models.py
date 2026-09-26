@@ -97,14 +97,17 @@ class ExecutionContext:
     """Deterministic, application-derived context for an authorization decision.
 
     These values come from the application (the validated caller identity, the
-    agent's identity, the declared purpose) — never from the model's proposal.
-    Stage 1A carries the minimum; later stages expand it (tenant, approval,
-    resource ownership).
+    agent's identity, the declared purpose, and any approvals the caller holds) —
+    never from the model's proposal. Stage 1A carries the minimum; later stages
+    expand it (tenant, resource ownership).
     """
 
     caller_id: str
     agent_id: str
     purpose: str
+    # Tool names for which a human approval has already been granted to this
+    # caller. Empty by default: nothing is pre-approved.
+    approved_tools: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)

@@ -254,6 +254,16 @@ Allowed environments are a constructor argument, defaulting to
 then refuses sandbox with `environment_not_permitted` — showing authorization is
 *configuration*, not something hard-wired into the tool.
 
+### Guardrail placement (a frequently-missed point)
+Guardrails belong at the layer that owns the concern — shape at the Pydantic
+args, tool existence at the registry, *is-it-allowed* at policy, the tool's own
+contract at the tool, budgets/protocol at the harness, behavioral steering at the
+prompt. A **human-approval** guardrail is authorization, so it lives in policy:
+`Policy(tools_requiring_approval={"..."})` denies `approval_required` unless the
+caller holds the approval in `ExecutionContext.approved_tools`. The approval is
+application-derived context, never model-asserted; the read-only Stage 1A tool
+requires none by default.
+
 **Question to consider:** policy and the tool both deny production — isn't that
 redundant? (Answer: that redundancy *is* the security property. Each layer must
 hold alone so a bug or change in one cannot expose production.)

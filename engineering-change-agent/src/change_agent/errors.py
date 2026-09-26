@@ -47,6 +47,7 @@ class ReasonCode(str, Enum):
 
     # Authorization-policy enforcement.
     ENVIRONMENT_NOT_PERMITTED = "environment_not_permitted"
+    APPROVAL_REQUIRED = "approval_required"
 
     # Harness and conversation-protocol enforcement.
     UNKNOWN_TOOL = "unknown_tool"

@@ -40,13 +40,19 @@ class Policy:
     )
 
     def __init__(
-        self, allowed_environments: Iterable[Environment] | None = None
+        self,
+        allowed_environments: Iterable[Environment] | None = None,
+        tools_requiring_approval: Iterable[str] | None = None,
     ) -> None:
         self._allowed_environments = (
             frozenset(allowed_environments)
             if allowed_environments is not None
             else self.DEFAULT_ALLOWED_ENVIRONMENTS
         )
+        # Tools that a human must approve before the harness may run them.
+        # Empty by default: Stage 1A's only tool is read-only and low-impact.
+        # A real deployment lists its write / high-impact tools here.
+        self._tools_requiring_approval = frozenset(tools_requiring_approval or ())
 
     def authorize(
         self,
@@ -57,9 +63,9 @@ class Policy:
     ) -> Decision:
         """Decide whether a validated proposal is permitted.
 
-        ``tool_name`` and ``context`` are part of the interface the harness
-        calls and the evidence records; Stage 1A authorizes on environment only
-        and expands the rules in later stages.
+        Stage 1A authorizes on environment and human approval; later stages
+        expand the rules (tenant, resource ownership) using the same
+        :class:`ExecutionContext`.
         """
         environment = arguments.environment
 
@@ -72,5 +78,14 @@ class Policy:
         # Fail closed: anything not explicitly permitted is refused.
         if environment not in self._allowed_environments:
             return Decision.deny(ReasonCode.ENVIRONMENT_NOT_PERMITTED)
+
+        # Human-approval guardrail. A tool that requires approval is refused
+        # unless this caller already holds an approval for it. The approval is
+        # application-derived context, never something the model can assert.
+        if (
+            tool_name in self._tools_requiring_approval
+            and tool_name not in context.approved_tools
+        ):
+            return Decision.deny(ReasonCode.APPROVAL_REQUIRED)
 
         return Decision.allow()

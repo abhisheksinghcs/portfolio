@@ -99,3 +99,45 @@ def test_production_denied_by_both_policy_and_tool() -> None:
     assert tool_result.outcome is Outcome.DENIED
     assert tool_result.reason == ReasonCode.PRODUCTION_ENVIRONMENT_PROHIBITED
     assert tool_result.data is None
+
+
+# --- Human-approval guardrail ---------------------------------------------
+
+
+def test_tool_requiring_approval_is_denied_without_approval() -> None:
+    # A policy that requires approval for the tool refuses an otherwise-valid
+    # request when the caller holds no approval for it.
+    policy = Policy(tools_requiring_approval={"get_deployment_status"})
+
+    decision = policy.authorize(
+        tool_name="get_deployment_status", arguments=_args(), context=CONTEXT
+    )
+
+    assert decision.allowed is False
+    assert decision.reason == ReasonCode.APPROVAL_REQUIRED
+
+
+def test_tool_requiring_approval_is_allowed_with_approval() -> None:
+    policy = Policy(tools_requiring_approval={"get_deployment_status"})
+    approved_context = ExecutionContext(
+        caller_id="user-1",
+        agent_id="engbot",
+        purpose="change-readiness",
+        approved_tools=frozenset({"get_deployment_status"}),
+    )
+
+    decision = policy.authorize(
+        tool_name="get_deployment_status",
+        arguments=_args(),
+        context=approved_context,
+    )
+
+    assert decision.allowed is True
+
+
+def test_default_policy_requires_no_approval() -> None:
+    # The read-only Stage 1A tool is low-impact: no approval by default.
+    decision = _authorize(Policy(), _args())
+
+    assert decision.allowed is True
+

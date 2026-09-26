@@ -130,6 +130,60 @@ DENIED TWICE -> policy.reason = production_environment_prohibited
 
 That redundancy is the security property, not an accident. Each layer must hold on its own so that a bug or a future change in one cannot silently expose production data. Notice too that authorization reads only the validated arguments and the application-derived `ExecutionContext` (caller, agent, purpose) — never the model's free-text instructions. There is no sentence the model can produce that flips this decision.
 
+## Where further guardrails belong
+
+A question that comes up constantly — and is often answered wrong: *"if I want another guardrail, do I just add it to the policy?"* Sometimes. Policy is the home for **authorization** guardrails, but each layer owns a different kind of check. Putting everything in policy blurs those concerns and throws away defense in depth. The discipline is simple: **put a guardrail at the layer that owns its concern.**
+
+| Guardrail kind | Home | Examples |
+|---|---|---|
+| Shape / structure of arguments | Pydantic argument model | required fields, types, allowed enum values, string patterns, rejecting extra keys |
+| Which tools can exist at all | Tool registry (allowlist) | unknown name → fail closed |
+| **Is this valid proposal permitted?** | **Policy** | caller / agent / tenant / purpose, environment, human approval, resource ownership, quotas |
+| The tool's own contract | Tool implementation | read-only, its own production denial, known-target limits, target-side authorization |
+| Budgets and protocol | Harness | max steps, max tool calls, timeout, `tool_call_id` correlation |
+| Behavioral steering | System prompt | *not a control* — guidance only |
+
+Two quick tests decide the home: if the guardrail asks *"is this well-formed?"* it belongs in the argument schema; if it asks *"is this allowed?"* it belongs in policy. And if a control matters enough — production access is the canonical case — enforce it in **two** layers so neither is load-bearing alone.
+
+### A human-approval guardrail, in policy
+
+Human approval is an authorization guardrail, so it lives in policy. The important design point is *where the approval state comes from*: the harness already passes the application-derived `ExecutionContext` to `policy.authorize`, so an approval rides in alongside the caller and purpose — it is never something the model can assert in its proposal.
+
+The context carries the approvals the caller already holds:
+
+```python
+@dataclass(frozen=True)
+class ExecutionContext:
+    caller_id: str
+    agent_id: str
+    purpose: str
+    # Tool names for which a human approval has already been granted to this
+    # caller. Empty by default: nothing is pre-approved.
+    approved_tools: frozenset[str] = frozenset()
+```
+
+And the policy refuses an approval-gated tool unless the caller holds that approval:
+
+```python
+# Human-approval guardrail. A tool that requires approval is refused unless
+# this caller already holds an approval for it. The approval is
+# application-derived context, never something the model can assert.
+if (
+    tool_name in self._tools_requiring_approval
+    and tool_name not in context.approved_tools
+):
+    return Decision.deny(ReasonCode.APPROVAL_REQUIRED)
+```
+
+With a policy configured to require approval for the tool, the same request is denied without an approval and allowed with one:
+
+```text
+NO APPROVAL   -> allowed=False  reason=approval_required
+WITH APPROVAL -> allowed=True   reason=None
+```
+
+In Stage 1A the only tool is a read-only, low-impact lookup, so no approval is required by default — this is the *mechanism*, shown on the tool we have. A real deployment lists its **write or high-impact** tools in `tools_requiring_approval`, and the approval itself is granted out of band (a human in an approval workflow), then reflected in the caller's `ExecutionContext`. The model never grants its own approval; it can only propose, and the proposal waits on a decision made in code from application-derived state.
+
 ## Limitation and what Part 1 defers
 
 Stage 1A authorizes on environment; caller, tenant, approval, and resource-ownership rules are later stages. Production remains a structurally valid value the model may name — denial is enforced, not hidden. And this part has only covered how a *single* proposal is resolved, validated, and authorized. The loop around it — how the conversation state stays a correct execution protocol, how execution is bounded and its failures normalized, and how evidence is captured without becoming a liability — is [Part 2](/content/agent-harness-02-governing-execution.md).

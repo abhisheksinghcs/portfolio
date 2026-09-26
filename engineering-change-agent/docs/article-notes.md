@@ -178,10 +178,23 @@ Correctly shaped input can still be refused. Production denial survives the
 failure of either single layer. Authorization is configuration + code, not the
 model's instructions.
 
+### Guardrail placement (frequently asked, often missed)
+
+Guardrails belong at the layer that owns the concern: **shape** -> Pydantic args;
+**which tools exist** -> registry allowlist; **is it permitted?** -> policy;
+**the tool's own contract** -> tool implementation; **budgets/protocol** ->
+harness; **behavioral steering** -> system prompt (not a control). A human-approval
+guardrail is an authorization concern, so it lives in policy: `Policy(
+tools_requiring_approval=...)` denies `approval_required` unless the caller holds
+the approval in `ExecutionContext.approved_tools` (application-derived, never
+model-asserted). Captured: `NO APPROVAL -> allowed=False reason=approval_required`;
+`WITH APPROVAL -> allowed=True`.
+
 ### Limitation
 
-Stage 1A authorizes on environment only. Caller/tenant/approval/resource-owner
-rules, and wiring policy into the live loop, are later steps.
+Stage 1A authorizes on environment and human approval. Caller/tenant/resource-
+owner rules are later steps. Approval is granted out of band and reflected in
+`ExecutionContext`; no approval-workflow UI is built here.
 
 ---
 
@@ -449,5 +462,5 @@ would need explicit orphan detection.
 
 ## Test evidence (captured)
 
-`python -m pytest -q` in `engineering-change-agent/`: **52 passed**.
+`python -m pytest -q` in `engineering-change-agent/`: **55 passed**.
 ```
