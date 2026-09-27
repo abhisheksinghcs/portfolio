@@ -191,6 +191,7 @@ Stage 1A authorizes on environment; caller, tenant, approval, and resource-owner
 ## Where to go next
 
 - [Part 2 — Governing Execution, Evidence, and the Conversation Protocol](/content/agent-harness-02-governing-execution.md)
+- [Part 3 — The Harness and the AI Gateway: Layered Enforcement](/content/agent-harness-03-gateway-and-harness.md)
 - [Inside the Agentic Harness](/content/agent-harness.md) — series landing page.
 - [The Secure Agent Lifecycle, Part 3: Build](/content/agent-lifecycle-03-build.md) — where the harness fits in the lifecycle.
 - [Microsoft-Native Enforcement for Agent Tool Use and Side Effects](/content/agent-security.md) — the tool-proposal and resource-authorization boundaries this implements.

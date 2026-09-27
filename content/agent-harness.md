@@ -62,8 +62,9 @@ Three principles run through the whole series:
 
 ## Available now
 
-- **Part 1 — [The Loop and the Proposal](/content/agent-harness-01-explicit-loop.md):** the explicit request flow, why model output is a proposal, why schema validation is not authorization, tool registries as allowlists, and denying production twice.
+- **Part 1 — [The Loop and the Proposal](/content/agent-harness-01-explicit-loop.md):** the explicit request flow, why model output is a proposal, why schema validation is not authorization, tool registries as allowlists, denying production twice, and where further guardrails belong (with a human-approval example).
 - **Part 2 — [Governing Execution, Evidence, and the Conversation Protocol](/content/agent-harness-02-governing-execution.md):** `tool_call_id` correlation, execution budgets and timeouts, normalized failures, content-minimizing evidence, and the application-owned, keyless model target.
+- **Part 3 — [The Harness and the AI Gateway: Layered Enforcement](/content/agent-harness-03-gateway-and-harness.md):** an architecture interlude — where an AI gateway sits relative to the harness, what each layer can and cannot enforce, how they compose as defense in depth across the six control-plane boundaries, and when each is the right tool.
 
 Stage 1B (Microsoft Agent Framework mapping) is planned and will be added here when complete.
 

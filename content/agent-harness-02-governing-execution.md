@@ -172,6 +172,7 @@ Stage 1A owns the loop explicitly. Stage 1B will reimplement the same behavioral
 ## Where to go next
 
 - [Part 1 — The Loop and the Proposal](/content/agent-harness-01-explicit-loop.md)
+- [Part 3 — The Harness and the AI Gateway: Layered Enforcement](/content/agent-harness-03-gateway-and-harness.md)
 - [Inside the Agentic Harness](/content/agent-harness.md) — series landing page.
 - [GenAI Observability Model](/content/observability.md) — the normalized event schema and identity correlation the evidence here feeds.
 - [The Secure Agent Lifecycle, Part 3: Build](/content/agent-lifecycle-03-build.md) — where the harness fits in the lifecycle.

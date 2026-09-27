@@ -53,6 +53,7 @@ Companion implementation track to Lifecycle Part 3 (Build). A small, tested, rep
 - [Inside the Agentic Harness: From Agent Intent to Governed Action](/content/agent-harness.md): Series landing page. The running scenario, the two build stages (1A explicit loop, 1B framework mapping), and the design stance that a model-generated tool call is an untrusted proposal.
 - [Part 1 — The Loop and the Proposal](/content/agent-harness-01-explicit-loop.md): The explicit request flow; why model output is a proposal; why schema validation is not authorization; tool registries as allowlists; denying production twice.
 - [Part 2 — Governing Execution, Evidence, and the Conversation Protocol](/content/agent-harness-02-governing-execution.md): tool_call_id correlation, execution budgets and timeouts, normalized failures, content-minimizing evidence, and the application-owned keyless model target.
+- [Part 3 — The Harness and the AI Gateway: Layered Enforcement](/content/agent-harness-03-gateway-and-harness.md): Architecture interlude contrasting an AI gateway with the agentic harness — position in the stack, what each enforces, defense in depth across the six control-plane boundaries, and when each is the right tool. No new code.
 
 ## Writing
 
